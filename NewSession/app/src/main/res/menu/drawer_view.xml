@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="fill_parent" android:layout_width="fill_parent">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_camera"
+            android:title="Department 1"
+            />
+        <item
+            android:id="@+id/nav_gallery"
+            android:title="Department 2" />
+        <item
+            android:id="@+id/nav_slideshow"
+            android:title="Department 3" />
+        <item
+            android:id="@+id/nav_manage"
+            android:title="Department 4" />
+    </group>
+</menu>
