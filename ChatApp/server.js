@@ -34,9 +34,15 @@ var User = mongoose.model("User",{
   designation: String,
   password:String,
 })
-
-
-
+var Department = mongoose.model("Department",{
+  id: String,
+  name: String,
+  location:String,
+  admin: String,
+  employ: [{
+      type: String
+  }],
+})
 
 mongoose.connect(conString, { useMongoClient: true }, (err) => {
     console.log("Database connection", err)
@@ -61,7 +67,6 @@ app.get("/chats", (req, res) => {
         console.log("App has Crashed....")
     })
 })
-
 app.get("/userdata/:id", (req, res) => {
     var id = req.params.id
    // res.send(id)
@@ -69,10 +74,22 @@ app.get("/userdata/:id", (req, res) => {
         //res.json(user)
         //res.send(id)
         res.send(user)
-        console.log("CHutiya")
+        console.log("Users Accesed")
     })
 })
-
+app.get("/depdata",(req,res)=>{
+    Department.find({},(error,dep)=>{
+      res.send(dep)
+      console.log("Departments Accessed")
+    })
+})
+app.get("/depdata/:id",(req,res)=>{
+  var id=req.params.id
+  User.find({department:id},(error,user)=>{
+      res.send(user)
+      console.log("Department User Accessed")
+  })
+})
 io.on("connection", (socket) => {
     console.log("Socket is connected...")
 })
