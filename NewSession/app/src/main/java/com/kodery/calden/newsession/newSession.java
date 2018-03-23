@@ -33,7 +33,9 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
@@ -49,6 +51,8 @@ public class newSession extends AppCompatActivity {
     ArrayList<ArrayList<String>> empidlist = new ArrayList<ArrayList<String>>();
     public ArrayList<String> finallist = new ArrayList<String>();
     public ArrayList<String> finallist2 = new ArrayList<String>();
+    public ArrayList<Dictionary> empfinal=new ArrayList<Dictionary>();
+    //Dictionary inner=new Hashtable<String, String>();
 
 
 
@@ -87,7 +91,7 @@ public class newSession extends AppCompatActivity {
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
                         Log.d("Calden",Integer.toString(menuItem.getItemId()));
                         lst_chat = (ListView) findViewById(R.id.lstdata);
-                        filler adapter=new filler(newSession.this,emplist.get(menuItem.getItemId()));
+                        filler adapter=new filler(newSession.this,empfinal.get(menuItem.getItemId()));
                         lst_chat.setAdapter(adapter);
 
                         // set item as selected to persist highlight
@@ -107,37 +111,53 @@ public class newSession extends AppCompatActivity {
     //Sets the ARRAY LIST passed in the textbox (Changes to be made so that people from other departments can be seleccted)
     public void setme(String str)
     {
-        int flag=0;
-        if(finallist2.isEmpty()){
-            finallist.add(str);
 
-           // finallist2.add(empidlist);
-        }
-
-
-        /*
         int flag=0;
         if(finallist.isEmpty()){
             finallist.add(str);
+            String hello="";
+            for(int i=0;i<empfinal.size();i++){
+                if(empfinal.get(i).get(str)==null){
+
+                }
+                else{
+                    Log.d("kk",empfinal.get(i).get(str).toString());
+                    hello=empfinal.get(i).get(str).toString();
+                }
+            }
+            finallist2.add(hello);
         }
         else{
             for(int i=0;i<finallist.size();i++){
                     if(finallist.get(i).equals(str)){
-                        finallist.remove(str);
+                        finallist.remove(i);
                         flag=1;
-                        //break;
+                        finallist2.remove(i);
                     }
                 }
                 if(flag==0){
                     finallist.add(str);
+                    String hello="";
+                    for(int i=0;i<empfinal.size();i++){
+                        if(empfinal.get(i).get(str)==null){
+
+                        }
+                        else{
+                            Log.d("kk",empfinal.get(i).get(str).toString());
+                            hello=empfinal.get(i).get(str).toString();
+                        }
+                    }
+                    finallist2.add(hello);
                 }
             }
-        */
+
         TextView totalemp=(TextView)findViewById(R.id.totalemp);
+
+
 
         //Converting arrarlist to string
         String listString = "";
-        for (String s : finallist)
+        for (String s : finallist2)
         {
             listString += s + ", ";
         }
@@ -294,18 +314,22 @@ public class newSession extends AppCompatActivity {
         {
             try {
                 JSONArray arr = new JSONArray(result);
+                Log.d("mytag",result);
                 JSONObject jObj;
                 ArrayList<String> temp10 = new ArrayList<String>();
                 ArrayList<String> temp11 = new ArrayList<String>();
+                Dictionary inner=new Hashtable<String, String>();
                 for(int i=0;i<arr.length();i++) {
                     jObj = arr.getJSONObject(i);
                     String id=jObj.getString("empid");
                     String name = jObj.getString("name");
                     //Log.d("noah",name);
+                    inner.put(id,name);
                     temp10.add(name);
                     temp11.add(id);
 
                 }
+                empfinal.add(inner);
                 emplist.add(temp10);
                 empidlist.add(temp11);
 

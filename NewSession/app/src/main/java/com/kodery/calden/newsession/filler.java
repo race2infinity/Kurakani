@@ -13,22 +13,38 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
 
 public class filler extends BaseAdapter {
 
     Context context;
     LayoutInflater layoutInflater;
     ArrayList<String> msglist=new ArrayList<String>();
+    ArrayList<String> msglistid=new ArrayList<String>();
     ArrayList<String> listofemp=new ArrayList<String>();
 
-    public filler(Context context, ArrayList<String> msg){
+    public filler(Context context, Dictionary msg){
         this.context=context;
         layoutInflater=(LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
+/*
+        for (Enumeration i = msg.elements(); i.hasMoreElements();)
+        {
+            msglist.add(i.nextElement().toString());
+        }
+*/
+        for (Enumeration k = msg.keys(); k.hasMoreElements();)
+        {
+            String temp=k.nextElement().toString();
+            msglistid.add(temp);
+            msglist.add(temp+" "+msg.get(temp));
+        }
+/*
         for(int i=0;i<msg.size();i++)
         {
             msglist.add(msg.get(i));
         }
+        */
     }
 
     @Override
@@ -52,21 +68,17 @@ public class filler extends BaseAdapter {
         final TextView txtView=(TextView)view.findViewById(R.id.txtView);
         txtView.setText(msglist.get(i));
 
+
+
         view.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 String temp=txtView.getText().toString();
-                /*
-                if(listofemp.contains(temp))
-                {
-                    listofemp.remove(temp);
+                if(temp.contains(" ")){
+                    temp= temp.substring(0, temp.indexOf(" "));
                 }
-                else
-                {
-                    listofemp.add(temp);
-                }
-                */
-                listofemp.add(temp);
+
+                //listofemp.add(temp);
                 newSession.getInstance().setme(temp);
             }
         });
