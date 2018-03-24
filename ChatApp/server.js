@@ -14,6 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 mongoose.Promise = Promise
 
+
 //MongoDB schema for Chats
 var Chats = mongoose.model("Chats", {
     name: String,
@@ -23,6 +24,7 @@ var Chats = mongoose.model("Chats", {
       default: Date.now()
   }
 })
+
 
 var Super = mongoose.model("Super",{
   empid:String
@@ -47,9 +49,6 @@ var Department = mongoose.model("Department",{
   name: String,
   location:String,
   admin: String,
-  employ: [{
-      type: String
-  }],
 })
 
 //MongoDB schema for Sessions
@@ -64,7 +63,7 @@ var Session = mongoose.model("Session",{
   }],
   created_at: {
       type: Date,
-      default: Date.now()
+      default: new Date()
     }});
 
 //Connecting to the database
@@ -120,15 +119,15 @@ app.post("/userdata/",async(req,res)=>{
 app.get("/chats", (req, res) => {
     Chats.find({}, (error, chats) => {
         res.send(chats)
-        console.log("App has Crashed....")
+        console.log("Chats Accessed")
     })
 })
 
 //fetching data of user from id
-app.get("/userdata/:id", (req, res) => {
+app.get("/userdata/:id/", (req, res) => {
     var id = req.params.id
    // res.send(id)
-    User.find({empid:id}, (error, user) => {
+    User.find({empid:id},'-password -aadhar', (error, user) => {
         //res.json(user)
         //res.send(id)
         res.send(user)
@@ -171,6 +170,35 @@ app.get("/findsessions/:id",(req,res)=>{
     console.log("Session members Accesed")
   })
 })
+
+//declining a session
+app.post("/sessions/no",(req,res)=>{
+  const sid = req.body.sid;
+  const id = req.body.id;
+  console.log(id,sid, req.body);
+  Session.findByIdAndUpdate(
+    sid,
+    { $pull: { invited: id } },
+    () => console.log('User removed')
+  );
+})
+
+//accepting a session
+app.post("/sessions/yes",(req,res)=>
+{
+  var sid = req.body.sid;
+  var id=req.body.id;
+  Session.findByIdAndUpdate(
+    sid,
+    { $pull: { invited: id } },
+    () => console.log('User removed')
+  );
+  Session.findByIdAndUpdate(
+    sid,
+    { $push: { members: id } },
+    () => console.log('User added')
+  );
+})
 //creating a socket connection
 io.on("connection", (socket) => {
     console.log("Socket is connected...")
@@ -178,5 +206,6 @@ io.on("connection", (socket) => {
 
 //creating a server
 var server = http.listen(3020, () => {
+    console.log(new Date())
     console.log("Well done, now I am listening on ", server.address().port)
 })
