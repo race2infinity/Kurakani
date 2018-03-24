@@ -37,7 +37,7 @@
         android:maxWidth="240dp"
         android:padding="8dp"
         android:text="Whatever message. Increasing it to two lines to get an idea."
-        android:textColor="#ffffff"
+        android:textColor="@android:color/background_light"
         app:layout_constraintTop_toBottomOf="@+id/text_message_name"
         tools:layout_editor_absoluteX="48dp" />
 
