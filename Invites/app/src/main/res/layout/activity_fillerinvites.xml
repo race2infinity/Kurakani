@@ -44,8 +44,18 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/txt"
+        android:layout_alignBaseline="@+id/txtdate"
+        android:layout_alignBottom="@+id/txtdate"
         android:layout_toStartOf="@+id/txtdate"
         android:text="Invited on: "
         android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/sid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textView"
+        android:text="TextView"
+        android:textSize="8sp" />
 </RelativeLayout>

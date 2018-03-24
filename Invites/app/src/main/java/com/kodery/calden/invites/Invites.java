@@ -3,11 +3,26 @@ package com.kodery.calden.invites;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.os.*;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -17,6 +32,8 @@ public class Invites extends AppCompatActivity {
 
     private static Invites sInvites;
     int counter=1;
+    String adminname;
+    String sid;
     //public ArrayList<String> lstnames=new ArrayList<String>();
     Dictionary lstnames=new Hashtable<String, String>();
     Dictionary lstadmin=new Hashtable<String, String>();
@@ -30,9 +47,8 @@ public class Invites extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invites);
 
-        lstnames.put(Integer.toString(counter),"Greater India");
-        lstadmin.put(Integer.toString(counter),"Calden");
-        lstdate.put(Integer.toString(counter),"25/03/2018");counter++;
+        String resultURL = "http://192.168.0.8:3020/findinvites/"+"7712";
+        new RestOperation().execute(resultURL);
 
         ListView lst_chat = (ListView) findViewById(R.id.lstdata);
         fillerInvites adapter=new fillerInvites(Invites.this,lstnames,lstadmin,lstdate);
@@ -44,15 +60,15 @@ public class Invites extends AppCompatActivity {
             public void onRefresh() {
                 new Handler().postDelayed(new Runnable() {
                     @Override public void run() {
-                        lstnames.put(Integer.toString(counter),"New India");
-                        lstadmin.put(Integer.toString(counter),"Roshan");
-                        lstdate.put(Integer.toString(counter),"26/03/2018");counter++;
+                        String resultURL = "http://192.168.0.8:3020/findinvites/"+"7712";
+                        new RestOperation().execute(resultURL);
+
                         ListView lst_chat = (ListView) findViewById(R.id.lstdata);
                         fillerInvites adapter=new fillerInvites(Invites.this,lstnames,lstadmin,lstdate);
                         lst_chat.setAdapter(adapter);
                         mSwipeRefreshLayout.setRefreshing(false);
                     }
-                }, 2000);
+                }, 0);
             }
         });
     }
@@ -67,6 +83,7 @@ public class Invites extends AppCompatActivity {
         else{
             Toast.makeText(Invites.this, "You have declined the session request", Toast.LENGTH_SHORT).show();
         }
+        setsid(text);
         lstnames.remove(text);
         lstadmin.remove(text);
         lstdate.remove(text);
@@ -74,4 +91,151 @@ public class Invites extends AppCompatActivity {
         fillerInvites adapter=new fillerInvites(Invites.this,lstnames,lstadmin,lstdate);
         lst_chat.setAdapter(adapter);
     }
+
+
+    public void setsid(String temp){
+        sid=temp;
+    }
+
+    public class RestOperation extends AsyncTask<String,Void,String> {
+
+        @Override
+        protected String doInBackground(String... params)
+        {
+            StringBuilder result= new StringBuilder();
+            try{
+
+                URL url = new URL(params[0]);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setReadTimeout(10000);
+                urlConnection.setConnectTimeout(10000);
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("Content-Type","application/json");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+
+                line=bufferedReader.readLine();
+
+                result.append(line).append("\n");
+
+
+            }catch(IOException ex){
+                return ex.toString();
+            }
+            return result.toString();
+        }
+
+
+        @Override
+        protected void onPreExecute()
+        {
+
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(String result)
+        {
+            try {
+                super.onPostExecute(result);
+
+                Log.d("calden",result);
+                JSONArray arr=new JSONArray(result);
+                JSONObject jObj;
+                for(int i=0;i<arr.length();i++)
+                {
+                    jObj = arr.getJSONObject(i);
+                    String name = jObj.getString("name");
+                    String id=jObj.getString("_id");
+                    String adminid=jObj.getString("admin");
+                    String date=jObj.getString("created_at");
+                    String temp=date;
+                    if(temp.contains("T")){
+                        temp= temp.substring(0, temp.indexOf("T"));
+                    }
+
+                    String resultURL = "http://192.168.0.8:3020/userdata/"+adminid;
+                    new RestOperation2().execute(resultURL);
+
+                    lstnames.put(id,name);
+                    lstadmin.put(id,adminname);
+                    lstdate.put(id,temp);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.d("ERROR",e.toString());
+
+            }
+        }
+    }
+
+    public void setAdmin(String temp)
+    {
+        adminname=temp;
+    }
+
+    public class RestOperation2 extends AsyncTask<String,Void,String> {
+
+        @Override
+        protected String doInBackground(String... params)
+        {
+            StringBuilder result= new StringBuilder();
+            try{
+
+                URL url = new URL(params[0]);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setReadTimeout(10000);
+                urlConnection.setConnectTimeout(10000);
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("Content-Type","application/json");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+
+                line=bufferedReader.readLine();
+
+                result.append(line).append("\n");
+
+
+            }catch(IOException ex){
+                return ex.toString();
+            }
+            return result.toString();
+        }
+
+
+        @Override
+        protected void onPreExecute()
+        {
+
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(String result)
+        {
+            try {
+                super.onPostExecute(result);
+                Log.d("hello",result);
+                JSONArray a=new JSONArray(result);
+                JSONObject j=a.getJSONObject(0);
+                String temp=j.getString("name");
+                setAdmin(temp);
+            }
+            catch (Exception e)
+            {
+                Log.d("ERROR",e.toString());
+
+            }
+        }
+    }
+
+
+
 }

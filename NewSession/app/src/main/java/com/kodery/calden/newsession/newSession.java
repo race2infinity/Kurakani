@@ -1,5 +1,6 @@
 package com.kodery.calden.newsession;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,11 +11,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,10 +41,12 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+import android.app.AlertDialog;
 
 public class newSession extends AppCompatActivity {
     private static newSession snewSession;
     ListView lst_chat;
+    public String m_Text="";
     String msg="";
     public ArrayList<String> msglist = new ArrayList<String>();
     public ArrayList<String> dep = new ArrayList<String>();
@@ -72,8 +77,38 @@ public class newSession extends AppCompatActivity {
         Button butnext=(Button)findViewById(R.id.butnext);
         butnext.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String resultURL = "http://192.168.0.8:3020/newsession";
-                new PostData().execute(resultURL);
+
+                String m_Text = "";
+                AlertDialog.Builder builder = new AlertDialog.Builder(newSession.this);
+                builder.setTitle("Session Title");
+
+                final EditText input = new EditText(newSession.this);
+
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    String m_Text = "";
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        m_Text = input.getText().toString();
+                        //Log.d("cali",m_Text);
+                        setText(m_Text);
+                        String resultURL = "http://192.168.0.8:3020/newsession";
+                        new PostData().execute(resultURL);
+                        //Change here to go to next page
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+
+
             }
         });;
 
@@ -107,6 +142,12 @@ public class newSession extends AppCompatActivity {
                     }
                 });
     }
+
+    public  void setText(String temp)
+    {
+        m_Text=temp;
+    }
+
 
     //Sets the ARRAY LIST passed in the textbox (Changes to be made so that people from other departments can be seleccted)
     public void setme(String str)
@@ -377,7 +418,7 @@ public class newSession extends AppCompatActivity {
             JSONObject datatosend=new JSONObject();
             JSONArray temp=new JSONArray();
             JSONArray mem=new JSONArray();
-            datatosend.put("name","mySession");
+            datatosend.put("name",m_Text);
             datatosend.put("admin","666");
             mem.put("666");
             datatosend.put("members",mem);
