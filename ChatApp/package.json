@@ -19,6 +19,8 @@
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "mongoose": "^4.13.6",
+    "mongoose-auto-increment": "^5.0.1",
+    "mongoose-sequence": "^4.0.1",
     "nodemon": "^1.17.2",
     "socket.io": "^2.0.4"
   }
