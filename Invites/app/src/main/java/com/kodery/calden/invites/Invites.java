@@ -1,5 +1,10 @@
 package com.kodery.calden.invites;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,17 +26,21 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class Invites extends AppCompatActivity {
 
     private static Invites sInvites;
-    int counter=1;
+
+    int counter=1,flag=0;
     String adminname;
     String sid;
     //public ArrayList<String> lstnames=new ArrayList<String>();
@@ -47,12 +56,24 @@ public class Invites extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invites);
 
-        String resultURL = "http://192.168.0.8:3020/findinvites/"+"7712";
-        new RestOperation().execute(resultURL);
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new TimerTask() {
+                    @Override
+                    public void run() {
+                        Log.d("lol","lol");
+                        String resultURL = "http://192.168.0.8:3020/findinvites/"+"7712";
+                        new RestOperation().execute(resultURL);
+                        ListView lst_chat = (ListView) findViewById(R.id.lstdata);
+                        fillerInvites adapter=new fillerInvites(Invites.this,lstnames,lstadmin,lstdate);
+                        lst_chat.setAdapter(adapter);
+                        flag=1;
+                    }
+                });
+            }
+        }, 0, 1000);
 
-        ListView lst_chat = (ListView) findViewById(R.id.lstdata);
-        fillerInvites adapter=new fillerInvites(Invites.this,lstnames,lstadmin,lstdate);
-        lst_chat.setAdapter(adapter);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -62,7 +83,6 @@ public class Invites extends AppCompatActivity {
                     @Override public void run() {
                         String resultURL = "http://192.168.0.8:3020/findinvites/"+"7712";
                         new RestOperation().execute(resultURL);
-
                         ListView lst_chat = (ListView) findViewById(R.id.lstdata);
                         fillerInvites adapter=new fillerInvites(Invites.this,lstnames,lstadmin,lstdate);
                         lst_chat.setAdapter(adapter);
@@ -92,6 +112,12 @@ public class Invites extends AppCompatActivity {
         lst_chat.setAdapter(adapter);
     }
 
+    public void callme()
+    {
+        ListView lst_chat = (ListView) findViewById(R.id.lstdata);
+        fillerInvites adapter=new fillerInvites(Invites.this,lstnames,lstadmin,lstdate);
+        lst_chat.setAdapter(adapter);
+    }
 
     public void setsid(String temp){
         sid=temp;
@@ -159,6 +185,23 @@ public class Invites extends AppCompatActivity {
 
                     String resultURL = "http://192.168.0.8:3020/userdata/"+adminid;
                     new RestOperation2().execute(resultURL);
+                    if(lstnames.get(id)==null && flag==1)
+                    {
+                            Log.d("change","its new");
+                        NotificationCompat.Builder b = new NotificationCompat.Builder(Invites.this);
+                        b.setAutoCancel(true)
+                                .setDefaults(Notification.DEFAULT_ALL)
+                                .setWhen(System.currentTimeMillis())
+                                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                                .setTicker("Hearty365")
+                                .setContentTitle("Invites Notification")
+                                .setContentText("You have Pending invites")
+                                .setDefaults(Notification.DEFAULT_LIGHTS| Notification.DEFAULT_SOUND)
+                                .setContentInfo("Info");
+                        NotificationManager notificationManager = (NotificationManager) Invites.this.getSystemService(Context.NOTIFICATION_SERVICE);
+                        notificationManager.notify(1, b.build());
+
+                    }
 
                     lstnames.put(id,name);
                     lstadmin.put(id,adminname);
@@ -222,7 +265,7 @@ public class Invites extends AppCompatActivity {
         {
             try {
                 super.onPostExecute(result);
-                Log.d("hello",result);
+                //Log.d("hello",result);
                 JSONArray a=new JSONArray(result);
                 JSONObject j=a.getJSONObject(0);
                 String temp=j.getString("name");
@@ -235,7 +278,5 @@ public class Invites extends AppCompatActivity {
             }
         }
     }
-
-
 
 }
