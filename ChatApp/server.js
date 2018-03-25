@@ -72,7 +72,7 @@ var Session = mongoose.model("Session",{
       type: String
   }],
   invited: [{
-      type: String 
+      type: String
   }],
   created_at: {
       type: Date,
@@ -101,10 +101,9 @@ app.post("/messages", async (req, res) => {
 //192.168.0.5
 //fetching messages from the database
 //Changes
-app.get("/messages/:eid/:seid", (req, res) => {
-    var id=req.params.eid
+app.get("/messages/:seid", (req, res) => {
     var sid=req.params.seid
-    Messages.find({sender:id,sess_id:sid}, (error, chats) => {
+    Messages.find({sess_id:sid}, (error, chats) => {
         res.send(chats)
         console.log("Chats Accessed")
     })
@@ -129,17 +128,53 @@ app.post("/newsession",async(req,res)=>{
 app.post("/userdata/",async(req,res)=>{
   try{
     var user = new User(req.body)
-    await user.save()
-    console.log("User created");
-    res.sendStatus(200)
-    //Emit the event
-    io.emit("usercreated",req.body)
+    User.findOne({empid:user.empid},async(err,user1)=>{
+      if(err){
+        return err
+      }
+      if(!user1){
+        await user.save()
+        console.log("User Created")
+        res.sendStatus(200)
+        //Emit the event
+        io.emit("usercreated",req.body)
+      }
+      else{
+        res.status(500).send({code:'AAE',message:'Account Already Exists'})
+      }
+    })
+
   }catch(error){
     res.sendStatus(500)
     console.error(error)
   }
 })
 
+//logging in to the application
+app.post("/login/app", (req,res)=>{
+  var id = req.body.id
+  var pass = req.body.password
+  console.log("Login Accessed")
+  User.findOne({empid:id},(err,user)=>{
+    if(err){
+      return err
+    }
+    if(!user){
+      res.status(500).send({code:"EII", message:"Employ ID Incorrect"})
+      console.log("User does not exist")
+    }
+    else {
+      if(pass==user.password){
+        res.sendStatus(200)
+        console.log("Right password")
+      }
+      else{
+        res.status(500).send({code:"PII", message:"Password ID Incorrect"})
+        console.log("Wrong password")
+      }
+    }
+  })
+})
 //fetching data of user from id
 app.get("/userdata/:id/", (req, res) => {
     var id = req.params.id
