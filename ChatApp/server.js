@@ -9,25 +9,38 @@ var io = require("socket.io")(http)
 var conString = "mongodb://localhost:27017/mylearning";
 //var conString = "mongodb://localhost:27017/mylearning";
 app.use(express.static(__dirname))
+
+//Body-parser Middleware
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
 mongoose.Promise = Promise
 
 
-//MongoDB schema for Chats
-var Chats = mongoose.model("Chats", {
-    name: String,
-    chat: String,
+//MongoDB schema for Messages
+//Change
+var Messages = mongoose.model("Messages", {
+    sender: String,
+    sess_id:String,
+    body: String,
     created_at: {
       type: Date,
-      default: Date.now()
+      default: new Date()
   }
 })
 
-
+//MongoDB schema for Super
+//Change
 var Super = mongoose.model("Super",{
-  empid:String
+  emailid:String,
+  password:String
+})
+
+//MongoDB schema for Super
+//Change
+var Admin = mongoose.model("Admin",{
+  emailid:String,
+  password:String
 })
 
 //MongoDB schema for users
@@ -59,7 +72,7 @@ var Session = mongoose.model("Session",{
       type: String
   }],
   invited: [{
-      type: String
+      type: String 
   }],
   created_at: {
       type: Date,
@@ -72,10 +85,11 @@ mongoose.connect(conString, { useMongoClient: true }, (err) => {
 })
 
 //Saving chats in the database
-app.post("/chats", async (req, res) => {
+//Changes
+app.post("/messages", async (req, res) => {
     try {
-        var chat = new Chats(req.body)
-        await chat.save()
+        var message = new Messages(req.body)
+        await message.save()
         res.sendStatus(200)
         //Emit the event
         io.emit("chat", req.body)
@@ -83,6 +97,17 @@ app.post("/chats", async (req, res) => {
         res.sendStatus(500)
         console.error(error)
     }
+})
+//192.168.0.5
+//fetching messages from the database
+//Changes
+app.get("/messages/:eid/:seid", (req, res) => {
+    var id=req.params.eid
+    var sid=req.params.seid
+    Messages.find({sender:id,sess_id:sid}, (error, chats) => {
+        res.send(chats)
+        console.log("Chats Accessed")
+    })
 })
 
 //creating  a new Sessions
@@ -115,25 +140,13 @@ app.post("/userdata/",async(req,res)=>{
   }
 })
 
-//fetching messages from the database
-app.get("/chats", (req, res) => {
-    Chats.find({}, (error, chats) => {
-        res.send(chats)
-        console.log("Chats Accessed")
-    })
-})
-
 //fetching data of user from id
 app.get("/userdata/:id/", (req, res) => {
     var id = req.params.id
-   // res.send(id)
     User.find({empid:id},'-password -aadhar', (error, user) => {
-        //res.json(user)
-        //res.send(id)
         res.send(user)
         console.log("Users Accesed")
     })
-
 })
 
 //fetching data of departments
