@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var mongojs = require('mongojs');
-var db = mongojs('passportapp', ['users']);
+var db = mongojs('dummydata', ['admin']);
 var bcrypt = require('bcryptjs');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
@@ -12,69 +12,48 @@ router.get('/login', function(req, res){
 });
 
 //Register Page -Get
-router.get('/register', function(req, res){
-    res.render('register');
+router.get('/admin', function(req, res){
+    res.render('admin');
 });
 
-//Register - POST
-router.post('/register', function(req, res){
-    // Get form values
-    var name = req.body.name;
-    var email = req.body.email;
-    var username = req.body.username;
-    var password = req.body.password;
-    var password2 = req.body.password2;
+//Dashboard
+router.get('/dash', function(req, res){
+    res.render('dash');
+});
 
-    // validation
-    req.checkBody('name', 'Name field is required').notEmpty();
-    req.checkBody('email', 'Email field is required').notEmpty();    
-    req.checkBody('email', 'please use a valid email address').isEmail();
-    req.checkBody('username', 'Username field is required').notEmpty();    
-    req.checkBody('password', 'Password field is required').notEmpty();
-    req.checkBody('password2', 'Passwords do not match').equals(req.body.password);
-    
+//Dashboard - POST
+router.post('/dash', function(req, res){
+    var Dept_name = req.body.Deptname;
+    var Dept_location = req.body.location;
+    var admin_email = req.body.email;
+    var Dept_id = req.body.DeptID;
+
+    req.checkBody('Dept_name', 'Department Name is not mentioned').notEmpty();
+    req.checkBody('Dept_location', 'Department location is not mentioned').notEmpty();
+    req.checkBody('admin_email', 'Department Name is not mentioned').isEmail();
+    req.checkBody('Dept_id', 'Department ID is not mentioned').notEmpty();
+
     var errors = req.validationErrors();
 
-    if(errors){
-        console.log('Form has erors....');
-        res.render('register',{
+    if(errors) {
+        console.log('Department form has errors...');
+        res.render('dash', {
             errors: errors,
-            name: name,
-            email: email,
-            username: username,
-            password: password,
-            password2: password2
+            Dept_name: Deptname,
+            Dept_location: location,
+            admin_email: email,
+            Dept_id: DeptID
         });
     } else {
-        var newUser = {
-            name: name,
-            email: email,
-            username: username,
-            password: password
-        }
-        
-        bcrypt.genSalt(10, function(err, salt){
-            bcrypt.hash(newUser.password, salt, function(err, hash){
-                newUser.password = hash;
-                db.users.insert(newUser, function(err, doc){
-                    if(err){
-                        res.send(err);
-                    } else {
-                        console.log('User Added...');
-        
-                        //Success Message
-                        req.flash('success', 'You are registered and can now log in');
-        
-                        //Redirect after register
-                        res.location('/');
-                        res.redirect('/');
-                    }
-                });
-            });
-        });
-
-        
+        //if()
     }
+});
+
+router.post('/admin', passport.authenticate('local', {
+    successRedirect: 'admin_dash', failureRedirect: '/users/admin', failureFlash: true}),
+    function(req, res) {
+        console.log('Authentication successful');
+        res.render('admin_dasht');        
 });
 
 passport.serializeUser(function(user, done){
@@ -82,20 +61,24 @@ passport.serializeUser(function(user, done){
 });
 
 passport.deserializeUser(function(id, done) {
-    db.users.findOne({_id: mongojs.ObjectId(id)}, function(err,user) {
+    db.admin.findOne({_id: mongojs.ObjectId(id)}, function(err,user) {
         done(err, user); 
     });
 });
 
 passport.use(new LocalStrategy(function(username, password, done){
-    db.users.findOne({username: username}, function(err, user) {
+    db.admin.findOne({username: username}, function(err, user) {
             if(err) {
                 return done(err);
             }
             if(!user){
                 return done(null, false, {message: 'Incorrect Username'});
             }
-
+            if(!user.password) {
+                return done(null, false, { message: 'Incorrect password.'});
+            }
+            return done(null, user);
+            /*
             bcrypt.compare(password, user.password, function(err, isMatch){
                 if(err) {
                     return done(err);
@@ -105,15 +88,15 @@ passport.use(new LocalStrategy(function(username, password, done){
                 }else {
                     return done(null, false,{message: 'Incorrect Password'})
                 }
-            });
+            });*/
     });
 }));
 
 router.post('/login', passport.authenticate('local', {
-    successRedirect: '/', failureRediect: '/users/login', failureFlash: 'Invalid Username or Password' }), 
+    successRedirect: 'dash', failureRediect: '/users/login', failureFlash: 'Invalid Username or Password' }), 
     function(req, res){
         console.log('Authentication successful');
-        res.redirect('/');  
+        res.render('dash');  
 });
 
 router.get('/logout', function(req, res){

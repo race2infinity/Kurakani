@@ -1,0 +1,67 @@
+<%- include('includes/header') %>
+
+  <!--<body class="bg-light">
+  -->
+    <div class="container">
+      <div class="py-5 text-center">
+
+        <h2>Notsapp Dashboard</h2>
+        <p class="lead">Inter-Departmental Messaging app which is not like Whatsapp.</p>
+      </div>
+
+      <div class="row">
+        
+        <div class="col-md-12 order-md-1">
+          <h4 class="mb-3">Description of the Department</h4>
+          <form method="post" action="/server.js/depdata" class="departments" >
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="firstName">Department name <span class="text-muted">(required)</span></label>
+                <input type="text" class="form-control" name="name" placeholder="" value="" required>
+                <div class="invalid-feedback">
+                  Valid Department name is required.
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="lastName">Location <span class="text-muted">(required)</span></label>
+                <input type="text" class="form-control" name="location" placeholder="" value="" required>
+                <div class="invalid-feedback">
+                  Valid loction is required.
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="email">Admin Id <span class="text-muted">(required)</span></label>
+                <input type="email" class="form-control" name="admin" placeholder="you@sik-gov.com">
+                <div class="invalid-feedback">
+                  Please enter a valid email address.
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="id">Department Id <span class="text-muted">(required)</span></label>
+                <input type="number" class="form-control" name="id" placeholder="eg:1234">
+                <div class="invalid-feedback">
+                  Please enter a only numbers for ID.
+                </div>
+              </div>
+            </div>
+
+            <hr class="col-mb-6">
+            <button class="btn btn-primary btn-lg btn-block" type="submit">Create Department</button>
+          </form>
+        </div>
+      </div>
+
+      <footer class="my-5 pt-5 text-muted text-center text-small">
+        <p class="mb-1">&copy; 2017-2018 Kodery8</p>
+        <ul class="list-inline">
+          <li class="list-inline-item"><a href="#">Privacy</a></li>
+          <li class="list-inline-item"><a href="#">Terms</a></li>
+          <li class="list-inline-item"><a href="#">Support</a></li>
+        </ul>
+      </footer>
+    </div>
+
+    <%- include('includes/footer') %>

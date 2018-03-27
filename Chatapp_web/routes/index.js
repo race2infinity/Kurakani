@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 router.get('/', ensureAuthenticated, function(req, res){
-    res.render('index');
+    res.render('dash');
     console.log('this is index page')
 });
 
@@ -11,6 +11,7 @@ function ensureAuthenticated(req, res, next){
         return next();
     }
     res.redirect('/users/login');
+   // res.render('dash');
 }
 
 module.exports = router;
