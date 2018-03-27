@@ -32,8 +32,8 @@ class Message {
         return text;
     }
 
-    public String getUser() {
-        return sender.getName();
+    public User getUser() {
+        return sender;
     }
 
     public String getTime() {
@@ -43,15 +43,27 @@ class Message {
 
 class User {
     String name;
+    String desg;
+    String dept;
     String profileurl;
 
-    public User(String name, String profileurl) {
+    public User(String name, String desg, String dept, String profileurl) {
         this.name = name;
+        this.desg = desg;
+        this.dept = dept;
         this.profileurl = profileurl;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getDept() {
+        return dept;
+    }
+
+    public String getDesg() {
+        return desg;
     }
 
     public String getURL() {
@@ -71,20 +83,47 @@ public class MessageAdapter extends RecyclerView.Adapter {
         Log.d(TAG, messageList.get(0).getText());
     }
 
+
+    @Override
+    public int getItemViewType(int position) {
+        Message message = (Message) mMessageList.get(position);
+
+        if(message.getUser().getURL().equals(Chatroom.id)) {
+            // If the current user is the sender of the message
+            return 1;
+        }
+        else {
+            // If some other user sent the message*/
+            return 2;
+        }
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v;
-        Log.d(TAG, "onCreateViewHolder: ENTERED");
-        v=LayoutInflater.from(parent.getContext()).inflate(R.layout.message_received, parent, false);
-        return new ReceivedMessageHolder(v);
+        switch (viewType)
+        {
+            case 1:
+                return new SentMessageHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.message_sent, parent, false));
+
+            default:
+                return new ReceivedMessageHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.message_received, parent, false));
+        }
+        //Log.d(TAG, "onCreateViewHolder: ENTERED");
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Message message = (Message) mMessageList.get(position);
 
-        ((ReceivedMessageHolder) holder).bind(message);
-
+        switch(holder.getItemViewType())
+        {
+            case 1:
+                ((SentMessageHolder) holder).bind(message);
+                break;
+            default:
+                ((ReceivedMessageHolder) holder).bind(message);
+        }
     }
 
     @Override
@@ -94,8 +133,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     }
 
     private class ReceivedMessageHolder extends RecyclerView.ViewHolder {
-        TextView messageText, timeText, nameText;
-        //ImageView profileImage;
+        TextView messageText, timeText, nameText, desText, depText; //ImageView profileImage;
 
         ReceivedMessageHolder(View itemView) {
             super(itemView);
@@ -103,7 +141,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
             messageText = (TextView) itemView.findViewById(R.id.text_message_body);
             timeText = (TextView) itemView.findViewById(R.id.text_message_time);
             nameText = (TextView) itemView.findViewById(R.id.text_message_name);
+            desText = (TextView) itemView.findViewById(R.id.text_message_post);
             //profileImage = (ImageView) itemView.findViewById(R.id.image_message_profile);
+
         }
 
         void bind(Message message) {
@@ -114,10 +154,30 @@ public class MessageAdapter extends RecyclerView.Adapter {
             // Format the stored timestamp into a readable String using method.
             timeText.setText(message.getTime());
 
-            nameText.setText(message.getUser());
+            nameText.setText(message.getUser().getName());
+
+            desText.setText(message.getUser().getDesg()+", "+message.getUser().getDept());
 
             // Insert the profile image from the URL into the ImageView.
             //Utils.displayRoundImageFromUrl(mContext, message.getSender().getProfileUrl(), profileImage);
+        }
+    }
+
+    private class SentMessageHolder extends RecyclerView.ViewHolder {
+        TextView messageText, timeText;
+
+        SentMessageHolder(View itemView) {
+            super(itemView);
+
+            messageText = (TextView) itemView.findViewById(R.id.text_message_body);
+            timeText = (TextView) itemView.findViewById(R.id.text_message_time);
+        }
+
+        void bind(Message message) {
+            messageText.setText(message.getText());
+
+            // Format the stored timestamp into a readable String using method.
+            timeText.setText(message.getTime());
         }
     }
 

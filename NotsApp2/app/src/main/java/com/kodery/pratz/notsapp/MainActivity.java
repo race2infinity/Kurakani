@@ -1,9 +1,13 @@
 package com.kodery.pratz.notsapp;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -20,6 +24,10 @@ import android.view.ViewGroup;
 
 public class MainActivity extends AppCompatActivity {
 
+    //public SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+    //SharedPreferences.Editor editor = sharedPref.edit();
+    //public static String id= sharedPref.getString("userid", null);
+    public static String ip="http://192.168.0.8:3020";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -41,8 +49,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+        //ActionBar actionbar = getSupportActionBar();
+        //actionbar.setDisplayHomeAsUpEnabled(true);
+        //actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -62,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Creating session...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                Intent intent = new Intent(MainActivity.this, newSession.class);
+                startActivity(intent);
 
             }
         });
