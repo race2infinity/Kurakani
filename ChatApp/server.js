@@ -62,12 +62,15 @@ var Department = mongoose.model("Department",{
   name: String,
   location:String,
   admin: String,
+  sid:String
 })
 
 //MongoDB schema for Sessions
 var Session = mongoose.model("Session",{
   name: String,
   admin : String,
+  Lastmessage: String,
+  LastMT:Date,
   members: [{
       type: String
   }],
@@ -90,6 +93,10 @@ app.post("/messages", async (req, res) => {
     try {
         var message = new Messages(req.body)
         await message.save()
+        Session.findByIdAndUpdate(message.sess_id,
+           {$set:{Lastmessage:message.body,LastMT:message.created_at}},
+           () => console.log('Last Message Removed')
+          )
         res.sendStatus(200)
         //Emit the event
         io.emit("chat", req.body)
@@ -135,6 +142,14 @@ app.post("/userdata/",async(req,res)=>{
       if(!user1){
         await user.save()
         console.log("User Created")
+        /*Department.findOne({id:user.department},(err,dep)=>{
+        	Session.findByIdAndUpdate(
+			dep.sid,
+			{ $push: { members: user.empid } },
+			() => console.log('User added')
+		  );
+        })*/
+		
         res.sendStatus(200)
         //Emit the event
         io.emit("usercreated",req.body)
@@ -149,6 +164,7 @@ app.post("/userdata/",async(req,res)=>{
     console.error(error)
   }
 })
+
 
 //logging in to the application
 app.post("/login/app", (req,res)=>{
@@ -201,6 +217,43 @@ app.get("/depdata/:id",(req,res)=>{
   })
 })
 
+
+//Creating a department
+app.post("/depdata/",async(req,res)=>{
+  try{
+    var dep = new Department(req.body)
+    Department.findOne({id:dep.id},async(err,dep1)=>{
+      if(err){
+        return err
+      }
+      if(!dep1){
+        await dep.save()
+        console.log("Department Created")
+        var sess = new Session()
+        sess.name=dep.name
+        sess.admin=dep.admin
+        sess.save()
+        var x=sess._id
+        console.log(dep.id)
+        Department.findByIdAndUpdate(dep._id,
+           {$set:{sid:sess._id}},
+           () => console.log(sess._id)
+          )
+        res.sendStatus(200)
+        //Emit the event
+        io.emit("depcreated",req.body)
+      }
+      else{
+        res.status(500).send({code:'DAE',message:'Department Already Exists'})
+      }
+    })
+
+  }catch(error){
+    res.sendStatus(500)
+    console.error(error)
+  }
+})
+
 //find sessions the employee is invited to
 app.get("/findinvites/:id",(req,res)=>{
   var id=req.params.id
@@ -230,6 +283,7 @@ app.post("/sessions/no",(req,res)=>{
     () => console.log('User removed')
   );
 })
+
 
 //accepting a session
 app.post("/sessions/yes",(req,res)=>
