@@ -26,7 +26,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -123,21 +125,33 @@ public class Chatroom extends AppCompatActivity {
             Chatroom.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    JSONObject data = (JSONObject) args[0];
+                    JSONObject mainObject = (JSONObject) args[0];
+                    Log.d("chai",mainObject.toString());
                     Log.d("uu","uu");
                     try {
-                        String id1 = data.getString("sender");
-                        String message = data.getString("body");
-                        String ses=data.getString("sess_id");
-                        if(ses.equals(value)) {
-                            User usr = (User) new User(id1, "Designation1", "Department1", id1);
-                            Message temp = (Message) new Message(message, usr, "9pm");
+                        String id = mainObject.getString("sender");
+                        String message = mainObject.getString("body");
+                        String ses=mainObject.getString("sess_id");
+                        String des=mainObject.getString("send_des");
+                        String dep=mainObject.getString("send_dep");
+                        String name=mainObject.getString("send_name");
+                        String time=mainObject.getString("created_at");
 
-                            messageList.add(temp);
-                            mMessageAdapter.notifyDataSetChanged();
-                            mMessageRecycler.scrollToPosition(messageList.size() - 1);
-                        }
-                    } catch (JSONException e) {
+                        SimpleDateFormat gg=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                        //gg.setTimeZone(Calendar.getInstance().getTimeZone());
+                        SimpleDateFormat fd=new SimpleDateFormat("HH:mm");
+                        Date dateobj;
+                        String ttime;
+                        dateobj =gg.parse(time);
+                        ttime=fd.format(dateobj);
+
+                        User usr = (User) new User(name, des, dep, id);
+                        Message temp =(Message) new Message(message, usr, ttime);
+                        messageList.add(temp);
+                        mMessageAdapter.notifyDataSetChanged();
+                        mMessageRecycler.scrollToPosition(messageList.size()-1);
+
+                    } catch (Exception e) {
                         Log.d("yomom",e.toString());
                     }
 
@@ -190,11 +204,24 @@ public class Chatroom extends AppCompatActivity {
                 JSONObject mainObject;
                 for(int i=0; i<jarr.length(); i++) {
                     mainObject = jarr.getJSONObject(i);
-                    String name = mainObject.getString("sender");
+                    String id = mainObject.getString("sender");
                     String message = mainObject.getString("body");
+                    String ses=mainObject.getString("sess_id");
+                    String des=mainObject.getString("send_des");
+                    String dep=mainObject.getString("send_dep");
+                    String name=mainObject.getString("send_name");
+                    String time=mainObject.getString("created_at");
 
-                    User usr = (User) new User(name, "Designation1", "Department1", name);
-                    Message temp =(Message) new Message(message, usr, "9pm");
+                    SimpleDateFormat gg=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    //gg.setTimeZone(Calendar.getInstance().getTimeZone());
+                    SimpleDateFormat fd=new SimpleDateFormat("HH:mm");
+                    Date dateobj;
+                    String ttime;
+                    dateobj =gg.parse(time);
+                    ttime=fd.format(dateobj);
+
+                    User usr = (User) new User(name, des, dep, id);
+                    Message temp =(Message) new Message(message, usr, ttime);
                     messageList.add(temp);
                     mMessageAdapter.notifyDataSetChanged();
                     mMessageRecycler.scrollToPosition(messageList.size()-1);

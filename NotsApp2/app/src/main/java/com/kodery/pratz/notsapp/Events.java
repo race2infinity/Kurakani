@@ -98,6 +98,7 @@ import com.kodery.pratz.notsapp.Sessions;
  */
 public class Events extends Fragment {
    // public static String id=Sessions.id;
+
     public static  String ip=Sessions.ip;
     public static String id;
     // TODO: Rename parameter arguments, choose names that match
@@ -125,6 +126,14 @@ public class Events extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            getFragmentManager().beginTransaction().detach(this).attach(this).commit();
+        }
+    }
 
 
     public Events() {
@@ -233,6 +242,15 @@ public class Events extends Fragment {
 
         }
 */
+
+        Log.d("lol", "lol");
+        String resultURL = ip + "/findinvites/" + id;
+        new RestOperation().execute(resultURL);
+        ListView lst_chat = (ListView) getView().findViewById(R.id.lstdata);
+        fillerInvites adapter = new fillerInvites(getActivity(), lstnames, lstadmin, lstdate);
+        lst_chat.setAdapter(adapter);
+
+
         mSwipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

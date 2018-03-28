@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,7 +21,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
+
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -28,10 +34,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -48,6 +58,20 @@ import java.util.Locale;
 public class Sessions extends Fragment {
     public static Sessions mSessions;
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            getFragmentManager().beginTransaction().detach(this).attach(this).commit();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //setUserVisibleHint(true);
+    }
+
     public static Sessions getInstance() {
         return mSessions;
     }
@@ -62,6 +86,17 @@ public class Sessions extends Fragment {
     public RecyclerView mSessionRecycler;
     public SessionAdapter mSessionAdapter;
     public static ArrayList<Session> sessionList=new ArrayList<Session>();
+
+    private Socket socket;
+
+    {
+        try {
+            socket = IO.socket(ip);
+
+        } catch (URISyntaxException e) {
+
+        }
+    }
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -95,6 +130,7 @@ public class Sessions extends Fragment {
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
+
     }
 
     @Override
@@ -106,11 +142,14 @@ public class Sessions extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         mSessions=this;
+        getFragmentManager().beginTransaction().detach(this).attach(this).commit();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        //getFragmentManager().beginTransaction().detach(this).attach(this).commit();
         // Inflate the layout for this fragment
         //return inflater.inflate(R.layout.fragment_sessions, container, false);
 
@@ -173,6 +212,9 @@ public class Sessions extends Fragment {
             }
         });*/
 
+        socket.connect();
+        socket.on("refresh", handleIncomingMessages);
+
         SharedPreferences sharedPref = getActivity().getSharedPreferences("userinfo", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         id = sharedPref.getString("userid","");
@@ -218,6 +260,56 @@ public class Sessions extends Fragment {
 
         mSessionRecycler.setAdapter(mSessionAdapter);
     }
+
+
+    private Emitter.Listener handleIncomingMessages = new Emitter.Listener() {
+
+            @Override
+            public void call ( final Object...args){
+
+            if(getActivity()!=null){
+            getActivity().runOnUiThread(new Runnable() {
+
+
+
+                    public void run () {
+
+                    Log.d("uu", "uu");
+                    try {
+                        sort();
+                        mSessionRecycler = (RecyclerView) getView().findViewById(R.id.session_recycler);
+                        mSessionAdapter = new SessionAdapter(getContext(), sessionList);
+                        LinearLayoutManager llm = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+                        //llm.setStackFromEnd(true);
+                        //llm.setReverseLayout(true);
+                        mSessionRecycler.setLayoutManager(llm);
+                        mSessionRecycler.getLayoutManager().setMeasurementCacheEnabled(false);
+                        mSessionRecycler.setHasFixedSize(true);
+
+                    } catch (Exception e) {
+                        Log.d("yomom", e.toString());
+                    }
+
+                }
+
+            });
+            }
+
+    }};
+
+
+    public void sort()
+    {
+
+        Collections.sort(sessionList, new Comparator<Session>() {
+            @Override
+            public int compare(Session o1, Session o2) {
+                return o1.time.compareTo(o2.time);
+            }
+        });
+        Collections.reverse(sessionList);
+    }
+
 
     public class GetData extends AsyncTask<String, Void, String> {
         @Override
@@ -279,10 +371,10 @@ public class Sessions extends Fragment {
 
                     Session temp = (Session) new Session(name,id,ttime);
                     sessionList.add(temp);
-                    //updateme(temp);
-                    mSessionAdapter.notifyDataSetChanged();
                     //Log.d("jo",sessionList.get(i+1).getName());
                 }
+                sort();
+                mSessionAdapter.notifyDataSetChanged();
 
             }
             catch (Exception ex){

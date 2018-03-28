@@ -35,6 +35,12 @@ class Session {
 
     }
 
+    //@Override
+    /*
+    public int compareTo(Session o) {
+        return toString().compareTo(o.toString());
+    }*/
+
     public String getName() {
         return name;
     }
