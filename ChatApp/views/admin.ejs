@@ -1,0 +1,19 @@
+<%- include('includes/header') %>
+
+<div class="container login-page">
+    <%- messages() %>
+        <form method="post" action="/users/admin" class="form-signin">
+          <h2 class="form-signin-heading text-center">Notsapp</h2>
+          <h2 class="text-center"><small>Admin's Page</small></h2>
+          <label class="sr-only">EmailID</label>
+          <input type="email" name="emailname" class="form-control" required autofocus>
+          <br>
+          <label class="sr-only">Password</label>
+          <input type="password" name="password" class="form-control" required>
+          <!--<p>Not a Superadmin.<a href="/users/admin">Admin</a></p>-->
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        </form>
+      </div> <!-- /container -->
+  
+
+<%- include('includes/footer') %>
