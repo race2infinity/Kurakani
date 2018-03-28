@@ -25,11 +25,11 @@ class Session {
     String lmsg;
     String unread;
 
-    public Session(String name, String id) {
+    public Session(String name, String id,String time) {
     //public Session(String name, String id, String time,String lmsg,String unread) {
         this.name = name;
         this.id = id;
-        //this.time = time;
+        this.time = time;
         //this.lmsg= lmsg;
         //this.unread=unread;
 
@@ -102,17 +102,19 @@ public class SessionAdapter extends RecyclerView.Adapter {
     }
 
     private class SessionHolder extends RecyclerView.ViewHolder {
-        TextView sessionName, sessionId;
+        TextView sessionName, sessionId,sessionTime;
 
         SessionHolder(View itemView) {
             super(itemView);
             sessionName= (TextView) itemView.findViewById(R.id.textView2);
             sessionId = (TextView) itemView.findViewById(R.id.textView3);
+            sessionTime=(TextView)itemView.findViewById(R.id.textView5);
         }
 
         void bind(Session session) {
            sessionName.setText(session.getName());
            sessionId.setText(session.getId());
+           sessionTime.setText(session.getTime());
         }
     }
 

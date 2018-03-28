@@ -6,7 +6,9 @@ import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
 import android.util.Log;
@@ -38,9 +40,11 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout _inputLayoutPasswordText, _inputLayoutUseridText;
     private Button _btnLogin;
     private TextView _linkSignup;
+    public int flag;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
@@ -49,13 +53,15 @@ public class LoginActivity extends AppCompatActivity {
             if(sharedPref.getBoolean("abcd",true)) {
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivityForResult(intent, REQUEST_SIGNUP);
+                finish();
             }
         }
         else
         {
             editor.putBoolean("abcd",false);
+
             editor.commit();
-            boolean check = sharedPref.getBoolean("abcd",false);
+            //boolean check = sharedPref.getBoolean("abcd",false);
         }
         _inputLayoutUseridText = findViewById(R.id.input_layout_login_userid);
         _inputLayoutPasswordText = findViewById(R.id.input_layout_login_password);
@@ -75,6 +81,8 @@ public class LoginActivity extends AppCompatActivity {
                 SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
                 login();
+                if(flag==1)
+                    finish();
 
             }
         });
@@ -97,22 +105,32 @@ public class LoginActivity extends AppCompatActivity {
 
         SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("userid",_inputUseridText.getText().toString());
+       // editor.putString("userid",_inputUseridText.getText().toString());
 
         if (!validate()) {
             onLoginFailed();
             return;
         }
 
-        editor.putBoolean("abcd", true);
-        editor.commit();
-        boolean check = sharedPref.getBoolean("abcd",false);
+
+        //boolean check = sharedPref.getBoolean("abcd",false);
         //Log.d("hello", String.valueOf(check));
 
         String resultUrl = "http://192.168.0.8:3020/login/app";
         new PostData().execute(resultUrl);
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivityForResult(intent, REQUEST_SIGNUP);
+        if(flag==1) {
+            editor.putBoolean("abcd", true);
+            editor.putString("userid",_inputUseridText.getText().toString());
+            editor.commit();
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivityForResult(intent, REQUEST_SIGNUP);
+        }
+        else{
+            onLoginFailed();
+            _inputLayoutUseridText.setError(" ");
+            _inputLayoutPasswordText.setError("Invalid Credentials.");
+            return;
+        }
         // TODO: Implement authentication logic here.
 
     }
@@ -219,6 +237,7 @@ public class LoginActivity extends AppCompatActivity {
             datatosend.put("id", _inputUseridText.getText().toString());
             datatosend.put("password", _inputPasswordText.getText().toString());
 
+            Log.d("jol",datatosend.toString());
             StringBuilder result = new StringBuilder();
 
             URL url = new URL(urlpath);
@@ -240,7 +259,12 @@ public class LoginActivity extends AppCompatActivity {
             String line;
             line = bufferedReader.readLine();
             result.append(line);
-            Log.d("kyle",result.toString());
+            //Log.d("kyle",result.toString());
+            String temp=result.toString();
+            if(temp.equals("OK"))
+                flag=1;
+            else
+            {flag=0;}
             return result.toString();
         }
     }

@@ -2,6 +2,7 @@ package com.kodery.pratz.notsapp;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -49,7 +50,8 @@ import java.util.Set;
 import android.app.AlertDialog;
 
 public class newSession extends AppCompatActivity {
-    public static String id=Sessions.id;
+    //public static String id=Sessions.id;
+
     public static String ip=Sessions.ip;
     private static newSession snewSession;
     ListView lst_chat;
@@ -81,7 +83,7 @@ public class newSession extends AppCompatActivity {
         //actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
         //When the Button is pressed POST request to database has to be sent
-        Button butnext=(Button)findViewById(R.id.butnext);
+        FloatingActionButton butnext=(FloatingActionButton)findViewById(R.id.butnext2);
         butnext.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
@@ -104,6 +106,7 @@ public class newSession extends AppCompatActivity {
                         String resultURL = ip+"/newsession";
                         new PostData().execute(resultURL);
                         //Change here to go to next page
+                        finish();
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -114,6 +117,7 @@ public class newSession extends AppCompatActivity {
                 });
 
                 builder.show();
+
 
 
             }
@@ -286,6 +290,7 @@ public class newSession extends AppCompatActivity {
         protected void onPostExecute(String result)
         {
             try {
+
                 super.onPostExecute(result);
                 //Log.d("kyle",result);
 
@@ -421,6 +426,10 @@ public class newSession extends AppCompatActivity {
         }
 
         public String postData(String urlpath) throws IOException,JSONException{
+
+            SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            String id = sharedPref.getString("userid","");
 
             JSONObject datatosend=new JSONObject();
             JSONArray temp=new JSONArray();

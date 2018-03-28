@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,9 +25,13 @@ import android.view.ViewGroup;
 
 public class MainActivity extends AppCompatActivity {
 
+
+
     //public SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
     //SharedPreferences.Editor editor = sharedPref.edit();
     //public static String id= sharedPref.getString("userid", null);
+
+
     public static String ip="http://192.168.0.8:3020";
 
     /**
@@ -48,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        String id = sharedPref.getString("userid","");
+        Log.d("yuh",id);
 
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);

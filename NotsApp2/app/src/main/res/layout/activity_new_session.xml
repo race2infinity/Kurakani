@@ -24,6 +24,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/butnext2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="@dimen/fab_margin"
+            app:srcCompat="@android:drawable/ic_dialog_email" />
     </FrameLayout>
 
     <!-- Container for contents of drawer - use NavigationView to make configuration easier -->
@@ -38,6 +45,7 @@
         app:menu="@menu/drawer_view"
         app:headerLayout="@layout/nav_header"
         />
+
 
 </android.support.v4.widget.DrawerLayout>
 

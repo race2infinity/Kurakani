@@ -29,8 +29,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -42,10 +46,17 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class Sessions extends Fragment {
+    public static Sessions mSessions;
+
+    public static Sessions getInstance() {
+        return mSessions;
+    }
+
     //public static SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
     //SharedPreferences.Editor editor = sharedPref.edit();
-    //public static String id= sharedPref.getString("userid", null);
-    public static String id= "666";
+    //public static String id= Pref.getString("userid", null);
+    //public static String id= "4234";
+   public static String id="";
     public static String ip="http://192.168.0.8:3020";
 
     public RecyclerView mSessionRecycler;
@@ -94,9 +105,7 @@ public class Sessions extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-
-
+        mSessions=this;
     }
 
     @Override
@@ -154,7 +163,7 @@ public class Sessions extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Button button = (Button) getView().findViewById(R.id.button2);
+        /*Button button = (Button) getView().findViewById(R.id.button2);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -162,9 +171,13 @@ public class Sessions extends Fragment {
                 startActivity(intent);
 
             }
-        });
+        });*/
 
-        Session temp=(Session)new Session("name","5ab732b6a173133b1a6c481a");
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        id = sharedPref.getString("userid","");
+
+        Session temp=(Session)new Session("name","5ab732b6a173133b1a6c481a","9:00pm");
         sessionList.add(temp);
 
 
@@ -192,7 +205,7 @@ public class Sessions extends Fragment {
                         Intent intent = new Intent(getActivity(),Chatroom.class);
                         Bundle b = new Bundle();
                         b.putString("id", temp); //Your id
-                        intent.putExtras(b); //Put your id to your next Intent
+                        intent.putExtras(b);
                         startActivity(intent);
 
                     }
@@ -206,7 +219,7 @@ public class Sessions extends Fragment {
         mSessionRecycler.setAdapter(mSessionAdapter);
     }
 
-    class GetData extends AsyncTask<String, Void, String> {
+    public class GetData extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
             StringBuilder rs = new StringBuilder();
@@ -245,14 +258,26 @@ public class Sessions extends Fragment {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             try {
+                sessionList.clear();
                 Log.d("bis",s);
                 JSONArray jarr = new JSONArray(s);
                 JSONObject main;
                 for(int i=0;i<jarr.length();i++){
+
                     main=jarr.getJSONObject(i);
                     String name=main.getString("name");
                     String id=main.getString("_id");
-                    Session temp = (Session) new Session(name,id);
+                    String time=main.getString("LastMT");
+
+                    SimpleDateFormat gg=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    //gg.setTimeZone(Calendar.getInstance().getTimeZone());
+                    SimpleDateFormat fd=new SimpleDateFormat("HH:mm");
+                    Date dateobj;
+                    String ttime;
+                    dateobj =gg.parse(time);
+                    ttime=fd.format(dateobj);
+
+                    Session temp = (Session) new Session(name,id,ttime);
                     sessionList.add(temp);
                     //updateme(temp);
                     mSessionAdapter.notifyDataSetChanged();

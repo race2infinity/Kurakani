@@ -1,6 +1,7 @@
 package com.kodery.pratz.notsapp;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,19 +77,24 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     private Context mContext;
     private List<Message> mMessageList;
+    public String id;
+
 
     public MessageAdapter(Context context, List<Message> messageList) {
         mContext = context;
         mMessageList = messageList;
-        Log.d(TAG, messageList.get(0).getText());
+        id=Chatroom.id;
+        //Log.d(TAG, messageList.get(0).getText());
     }
 
 
     @Override
     public int getItemViewType(int position) {
-        Message message = (Message) mMessageList.get(position);
 
-        if(message.getUser().getURL().equals(Chatroom.id)) {
+
+        Message message = (Message) mMessageList.get(position);
+        //Log.d("KALDON GONNA KILL ME", message.getUser().getURL());
+        if(message.getUser().getURL().equals(id)) {
             // If the current user is the sender of the message
             return 1;
         }
@@ -128,7 +134,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        Log.d(TAG, "getItemCount: ENTERED");
+        //Log.d(TAG, "getItemCount: ENTERED");
         return mMessageList.size();
     }
 

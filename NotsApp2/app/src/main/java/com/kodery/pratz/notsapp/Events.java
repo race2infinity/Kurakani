@@ -1,9 +1,11 @@
 package com.kodery.pratz.notsapp;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -84,7 +86,7 @@ import android.app.AlertDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import com.kodery.pratz.notsapp.Sessions;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -95,8 +97,9 @@ import org.json.JSONObject;
  * create an instance of this fragment.
  */
 public class Events extends Fragment {
-    public static String id=Sessions.id;
+   // public static String id=Sessions.id;
     public static  String ip=Sessions.ip;
+    public static String id;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -122,6 +125,7 @@ public class Events extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
 
     public Events() {
         // Required empty public constructor
@@ -189,6 +193,11 @@ public class Events extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         sInvites = this;
+
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        id = sharedPref.getString("userid","");
+/*
         try {
             new Timer().scheduleAtFixedRate(new TimerTask() {
                 @Override
@@ -198,6 +207,11 @@ public class Events extends Fragment {
                         @Override
                         public void run() {
                             try {
+                                SharedPreferences sharedPref = getActivity().getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                String id = sharedPref.getString("userid","");
+
+
                                 Log.d("lol", "lol");
                                 String resultURL = ip + "/findinvites/" + id;
                                 new RestOperation().execute(resultURL);
@@ -218,6 +232,7 @@ public class Events extends Fragment {
 
 
         }
+*/
         mSwipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -225,6 +240,10 @@ public class Events extends Fragment {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        SharedPreferences sharedPref = getActivity().getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        String id = sharedPref.getString("userid","");
+
                         String resultURL = ip + "/findinvites/" + id;
                         new RestOperation().execute(resultURL);
                         ListView lst_chat = (ListView) getView().findViewById(R.id.lstdata);
@@ -244,7 +263,14 @@ public class Events extends Fragment {
 
     public void setme(int flag,String text){
         if(flag==1){
+            SharedPreferences sharedPref = getActivity().getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            String id = sharedPref.getString("userid","");
+
             Toast.makeText(getActivity(), "You are now a part of this Session", Toast.LENGTH_SHORT).show();
+            String resultURL = ip+"/findsessions/"+id;
+            Sessions.GetData innerObject = new Sessions().new GetData();
+            innerObject.execute(resultURL);
         }
         else{
             Toast.makeText(getActivity(), "You have declined the session request", Toast.LENGTH_SHORT).show();
@@ -446,8 +472,12 @@ class fillerInvites extends BaseAdapter {
     ArrayList<String> msglistdate=new ArrayList<String>();
     ArrayList<String> msgid=new ArrayList<String>();
 
+
     public fillerInvites(Context context, Dictionary msg, Dictionary msgadmin, Dictionary msgdate){
         this.context=context;
+
+
+
         layoutInflater=(LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         for (Enumeration k = msg.keys(); k.hasMoreElements();)
         {
@@ -557,9 +587,15 @@ class fillerInvites extends BaseAdapter {
         public String postData(String urlpath) throws IOException,JSONException {
 
             JSONObject datatosend=new JSONObject();
+
+            String id=Events.id;
+
+            //SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            //String id=sharedPref.getString(MainActivity."userid","");
+
             //JSONArray temp=new JSONArray();
             //JSONArray mem=new JSONArray();
-            datatosend.put("id",Events.id);
+            datatosend.put("id",id);
 
             datatosend.put("sid",sid);
 

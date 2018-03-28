@@ -21,6 +21,19 @@
             android:textSize="24sp" />
 
 
+        <ListView
+            android:id="@+id/lstdata"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:choiceMode="singleChoice"
+            android:clickable="true"
+            android:contextClickable="true"
+            android:divider="@null"
+            android:listSelector="@android:color/white">
+
+
+        </ListView>
+
         <Button
             android:id="@+id/butnext"
             android:layout_width="match_parent"
@@ -30,22 +43,6 @@
             android:background="@drawable/mybutton"
             android:padding="10dp"
             android:text="NEXT" />
-
-        <ListView
-            android:id="@+id/lstdata"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:choiceMode="singleChoice"
-            android:clickable="true"
-            android:contextClickable="true"
-            android:listSelector="@android:color/white"
-            android:divider="@null"
-            >
-
-
-
-        </ListView>
-
 
 
     </LinearLayout>

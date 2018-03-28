@@ -24,15 +24,12 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".Chatroom" />
         <activity android:name=".fillerInvites" />
         <activity android:name=".filler" />
         <activity android:name=".newSession" />
-
-        <activity android:name=".SignupActivity"></activity>
+        <activity android:name=".SignupActivity" />
     </application>
 
 </manifest>

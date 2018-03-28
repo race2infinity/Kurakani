@@ -1,5 +1,7 @@
 package com.kodery.pratz.notsapp;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,13 +36,13 @@ import java.net.*;
 
 public class Chatroom extends AppCompatActivity {
 
-    public static String id=Sessions.id;
     public static String ip=Sessions.ip;
     //public TextView stringbox;
     private RecyclerView mMessageRecycler;
     private MessageAdapter mMessageAdapter;
     public ArrayList<Message> messageList=new ArrayList<Message>();
     public String text,value="";
+    public static String id="";
 
     private Socket socket;
 
@@ -56,6 +58,10 @@ public class Chatroom extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        id = sharedPref.getString("userid","");
 
         Bundle b = getIntent().getExtras();
         //String value = ""; // or other values
@@ -122,13 +128,15 @@ public class Chatroom extends AppCompatActivity {
                     try {
                         String id1 = data.getString("sender");
                         String message = data.getString("body");
+                        String ses=data.getString("sess_id");
+                        if(ses.equals(value)) {
+                            User usr = (User) new User(id1, "Designation1", "Department1", id1);
+                            Message temp = (Message) new Message(message, usr, "9pm");
 
-                        User usr = (User) new User(id1, "Designation1", "Department1", id1);
-                        Message temp =(Message) new Message(message, usr, "9pm");
-
-                        messageList.add(temp);
-                        mMessageAdapter.notifyDataSetChanged();
-                        mMessageRecycler.scrollToPosition(messageList.size()-1);
+                            messageList.add(temp);
+                            mMessageAdapter.notifyDataSetChanged();
+                            mMessageRecycler.scrollToPosition(messageList.size() - 1);
+                        }
                     } catch (JSONException e) {
                         Log.d("yomom",e.toString());
                     }
@@ -203,6 +211,8 @@ public class Chatroom extends AppCompatActivity {
     }
 
     public class PostData extends AsyncTask<String, Void, String>{
+
+
 
         @Override
         protected void onPreExecute() {
