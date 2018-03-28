@@ -239,14 +239,16 @@ public class Sessions extends Fragment {
         mSessionRecycler.addOnItemTouchListener(
                 new RecycleritemClickListener(getContext(),mSessionRecycler  ,new RecycleritemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        String temp;
+                        String id,name;
                         TextView txtView3=view.findViewById(R.id.textView3);
-                        temp=txtView3.getText().toString();
-                        Log.d("jp",temp);
+                        TextView txtView4=view.findViewById(R.id.textView2);
+                        id=txtView3.getText().toString();
+                        name=txtView4.getText().toString();
 
                         Intent intent = new Intent(getActivity(),Chatroom.class);
                         Bundle b = new Bundle();
-                        b.putString("id", temp); //Your id
+                        b.putString("id", id); //Your id
+                        b.putString("name",name);
                         intent.putExtras(b);
                         startActivity(intent);
 

@@ -1,17 +1,21 @@
 package com.kodery.pratz.notsapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +47,7 @@ public class Chatroom extends AppCompatActivity {
     private RecyclerView mMessageRecycler;
     private MessageAdapter mMessageAdapter;
     public ArrayList<Message> messageList=new ArrayList<Message>();
-    public String text,value="";
+    public String text,value="",valuename;
     public static String id="";
 
     private Socket socket;
@@ -68,7 +72,11 @@ public class Chatroom extends AppCompatActivity {
         Bundle b = getIntent().getExtras();
         //String value = ""; // or other values
         if(b != null)
-            value = b.getString("id");
+        { value = b.getString("id");
+        valuename=b.getString("name");
+        }
+
+
 
         User usr = (User) new User("Lord Kaldon", "Desg2", "Dept2", id);
         Message temp =(Message) new Message("MESSAGE CONTENT", usr, "9pm");
@@ -77,6 +85,22 @@ public class Chatroom extends AppCompatActivity {
         setContentView(R.layout.activity_chatroom);
 
         //stringbox=(TextView)findViewById(R.id.textView2);
+
+        Toolbar toolbar=(Toolbar)findViewById(R.id.toolbar6);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(valuename);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Chatroom.this, SessionUsers.class);
+                intent.putExtra("sid",value);
+                intent.putExtra("name",valuename);
+                startActivity(intent);
+            }
+        });
+
+
 
         mMessageRecycler = (RecyclerView) findViewById(R.id.recyclerview_message_list);
 
@@ -109,6 +133,12 @@ public class Chatroom extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     @Override
@@ -202,6 +232,7 @@ public class Chatroom extends AppCompatActivity {
             try {
                 JSONArray jarr = new JSONArray(s);
                 JSONObject mainObject;
+                messageList.clear();
                 for(int i=0; i<jarr.length(); i++) {
                     mainObject = jarr.getJSONObject(i);
                     String id = mainObject.getString("sender");

@@ -364,6 +364,7 @@ public class Events extends Fragment {
                 for(int i=0;i<arr.length();i++)
                 {
                     jObj = arr.getJSONObject(i);
+                    Log.d("printme",jObj.toString());
                     String name = jObj.getString("name");
                     String id=jObj.getString("_id");
                     String adminid=jObj.getString("admin");
@@ -372,9 +373,10 @@ public class Events extends Fragment {
                     if(temp.contains("T")){
                         temp= temp.substring(0, temp.indexOf("T"));
                     }
-
+                    Log.d("print1",name+" "+id+" "+date);
                     String resultURL = ip+"/userdata/"+adminid;
                     new RestOperation2().execute(resultURL);
+                    /*
                     if(lstnames.get(id)==null && flag==1)
                     {
                         Log.d("change","its new");
@@ -392,7 +394,7 @@ public class Events extends Fragment {
                         //notificationManager.notify(1, b.build());
 
                     }
-
+*/
                     lstnames.put(id,name);
                     lstadmin.put(id,adminname);
                     lstdate.put(id,temp);
@@ -400,7 +402,7 @@ public class Events extends Fragment {
             }
             catch (Exception e)
             {
-                Log.d("ERROR",e.toString());
+                Log.d("ERROR1",e.toString());
 
             }
         }
@@ -455,15 +457,15 @@ public class Events extends Fragment {
         {
             try {
                 super.onPostExecute(result);
-                //Log.d("hello",result);
-                JSONArray a=new JSONArray(result);
-                JSONObject j=a.getJSONObject(0);
-                String temp=j.getString("name");
+                Log.d("hello",result);
+                JSONObject a=new JSONObject(result);
+                //JSONObject j=a.getJSONObject(0);
+                String temp=a.getString("name");
                 setAdmin(temp);
             }
             catch (Exception e)
             {
-                Log.d("ERROR",e.toString());
+                Log.d("ERROR2",e.toString());
 
             }
         }

@@ -1,27 +1,25 @@
 package com.kodery.pratz.notsapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -43,17 +41,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
-import android.app.AlertDialog;
 
-public class newSession extends AppCompatActivity {
-    //public static String id=Sessions.id;
+public class AddUser extends AppCompatActivity {
 
+    public String sesid;
     public static String ip=Sessions.ip;
-    private static newSession snewSession;
+    private static AddUser snewSession;
     ListView lst_chat;
     public String m_Text="";
     String msg="";
@@ -69,54 +63,25 @@ public class newSession extends AppCompatActivity {
     //Dictionary inner=new Hashtable<String, String>();
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Dont change
         snewSession = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_session);
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-        //ActionBar actionbar = getSupportActionBar();
-        //actionbar.setDisplayHomeAsUpEnabled(true);
-        //actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
+        Intent myintent=getIntent();
+        sesid=myintent.getStringExtra("sesid");
 
         //When the Button is pressed POST request to database has to be sent
         FloatingActionButton butnext=(FloatingActionButton)findViewById(R.id.butnext2);
         butnext.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                String m_Text = "";
-                AlertDialog.Builder builder = new AlertDialog.Builder(newSession.this);
-                builder.setTitle("Session Title");
-
-                final EditText input = new EditText(newSession.this);
-
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    String m_Text = "";
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        m_Text = input.getText().toString();
-                        //Log.d("cali",m_Text);
-                        setText(m_Text);
-                        String resultURL = ip+"/newsession";
-                        new PostData().execute(resultURL);
-                        //Change here to go to next page
-                        finish();
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.show();
+            String resultURL = ip+"/addsession";
+            new PostData().execute(resultURL);
+            //Change here to go to next page
+            finish();
 
 
 
@@ -137,7 +102,7 @@ public class newSession extends AppCompatActivity {
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
                         Log.d("Calden",Integer.toString(menuItem.getItemId()));
                         lst_chat = (ListView) findViewById(R.id.lstdata);
-                        filler adapter=new filler(newSession.this,empfinal.get(menuItem.getItemId()));
+                        fillerA adapter=new fillerA(AddUser.this,empfinal.get(menuItem.getItemId()));
                         lst_chat.setAdapter(adapter);
 
                         // set item as selected to persist highlight
@@ -147,7 +112,7 @@ public class newSession extends AppCompatActivity {
 
                         // Add code here to update the UI based on the item selected
                         // For example, swap UI fragments here
-                        Toast.makeText(newSession.this,menuItem.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddUser.this,menuItem.toString(), Toast.LENGTH_SHORT).show();
 
                         return true;
                     }
@@ -229,7 +194,7 @@ public class newSession extends AppCompatActivity {
     }
 
     //Sends data to filler class
-    public static newSession getInstance() {
+    public static AddUser getInstance() {
         return snewSession;
     }
 
@@ -429,22 +394,22 @@ public class newSession extends AppCompatActivity {
 
             SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
-            String id = sharedPref.getString("userid","");
+            String id1 = sharedPref.getString("userid","");
 
             JSONObject datatosend=new JSONObject();
             JSONArray temp=new JSONArray();
             JSONArray mem=new JSONArray();
-            datatosend.put("name",m_Text);
-            datatosend.put("admin",id);
-            mem.put(id);
-            datatosend.put("members",mem);
+            datatosend.put("id",finallist.get(0));
+            //datatosend.put("admin",id);
+            mem.put(id1);
+            datatosend.put("sid",sesid);
             for(int i=0;i<finallist.size();i++){
                 try {
                     temp.put(finallist.get(i));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                datatosend.put("invited",temp);
+               // datatosend.put("invited",temp);
             }
 
             Log.d("cal",datatosend.toString());
@@ -479,7 +444,7 @@ public class newSession extends AppCompatActivity {
 
 }
 
-class filler extends BaseAdapter {
+class fillerA extends BaseAdapter {
 
     Context context;
     LayoutInflater layoutInflater;
@@ -487,7 +452,7 @@ class filler extends BaseAdapter {
     ArrayList<String> msglistid=new ArrayList<String>();
     ArrayList<String> listofemp=new ArrayList<String>();
 
-    public filler(Context context, Dictionary msg){
+    public fillerA(Context context, Dictionary msg){
         this.context=context;
         layoutInflater=(LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         for (Enumeration k = msg.keys(); k.hasMoreElements();)
@@ -530,7 +495,7 @@ class filler extends BaseAdapter {
                 }
 
                 //listofemp.add(temp);
-                newSession.getInstance().setme(temp);
+                AddUser.getInstance().setme(temp);
             }
         });
 

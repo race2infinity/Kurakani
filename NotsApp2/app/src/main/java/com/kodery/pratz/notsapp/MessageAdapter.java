@@ -71,6 +71,8 @@ class User {
         return profileurl;
     }
 
+    public String print(){return name+" "+dept+" "+desg+" "+profileurl;}
+
 }
 
 public class MessageAdapter extends RecyclerView.Adapter {

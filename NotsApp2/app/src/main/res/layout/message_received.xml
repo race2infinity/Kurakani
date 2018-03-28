@@ -10,36 +10,38 @@
         android:id="@+id/text_message_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
         android:text="Name"
         android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="48dp" />
+        app:layout_constraintStart_toEndOf="@+id/quickContactBadge"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/text_message_post"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:text="Designation, Department"
         android:textSize="12sp"
-        app:layout_constraintStart_toEndOf="@+id/text_message_name"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/quickContactBadge"
+        app:layout_constraintTop_toBottomOf="@+id/text_message_name" />
 
 
     <TextView
         android:id="@+id/text_message_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
         android:background="@drawable/received_bubble"
         android:maxWidth="240dp"
         android:padding="8dp"
         android:text="Whatever message. Increasing it to two lines to get an idea."
         android:textColor="@android:color/background_light"
-        app:layout_constraintTop_toBottomOf="@+id/text_message_name"
-        tools:layout_editor_absoluteX="48dp" />
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_message_post" />
 
     <TextView
         android:id="@+id/text_message_time"
@@ -54,9 +56,10 @@
     <QuickContactBadge
         android:id="@+id/quickContactBadge"
         android:layout_width="wrap_content"
-        android:layout_height="61dp"
+        android:layout_height="42dp"
+        app:layout_constraintBottom_toBottomOf="@+id/text_message_post"
+        app:layout_constraintTop_toTopOf="@+id/text_message_name"
         app:srcCompat="@drawable/ic_launcher_foreground"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="5dp" />
+        tools:layout_editor_absoluteX="8dp" />
 
 </android.support.constraint.ConstraintLayout>

@@ -63,12 +63,15 @@ public class MainActivity extends AppCompatActivity {
         Log.d("yuh",id);
 
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //ActionBar actionBar = getSupportActionBar();
         //setSupportActionBar(toolbar);
         //ActionBar actionbar = getSupportActionBar();
         //actionbar.setDisplayHomeAsUpEnabled(true);
         //actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
+        //actionBar.setTitle("My title");
+
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
@@ -86,8 +89,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Creating session...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                //Intent intent = new Intent(MainActivity.this, SessionUsers.class);
+                //startActivity(intent);
+
                 Intent intent = new Intent(MainActivity.this, newSession.class);
                 startActivity(intent);
+
 
             }
         });
