@@ -11,7 +11,7 @@ var session = require('express-session');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var flash = require('connect-flash');
-
+// var Department = require('../models/department')
 var conString = "mongodb://localhost:27017/mylearning";
 //var conString = "mongodb://localhost:27017/mylearning";
 //app.use(express.static(__dirname))
@@ -297,27 +297,38 @@ app.get("/userdata/:id/", (req, res) => {
 
 //fetching data of departments
 app.get("/depdata",(req,res)=>{
-  console.log(req.headers);
-  Department.find({}, (error,dep) => {
-    res.send(dep)
-    console.log("Departments Accessed")
-  });
-});
+    Department.find({},(error,dep)=>{
+      if (error) {
+        return res.status(500).send({message: "ERROR"})
+      }
+      if (req.headers.accept.indexOf('text/html')>-1){
+        //var list=dep
+        //console.log(dep)
+        //fs.readfile
+        return res.render('depdata',{department: dep})
+      } else {
+        console.log(dep)
+      res.send(dep)
+      }
+      console.log("Departments Accessed")
+    })
+})
 
 //fetching employees from a department
 app.get("/depdata/:id",(req,res)=>{
-  var id=req.params.id;
-  User.find({department:id},(error,users)=>{
+  var id=req.params.id
+  User.find({department:id},(error,user)=>{
     if (error) {
-      return res.status(500).send({ message: 'Somthing went wrong' });
+      return res.status(500).send({message: "Something went wrong"});
     }
-    if (req.headers.accept.indexOf('text/html') > -1) {
-      return res.render('users', { users: users });
-    } else {
-      return res.send(users);
+    if (req.headers.accept.indexOf('text/html')>-1){
+      return res.render('users', {users: users});
+    }else {
+      res.send(user);
     }
-  });
-});
+      console.log("Department User Accessed")
+  })
+})
 
 //Creating a department
 app.post("/depdata/",async(req,res)=>{
@@ -331,6 +342,7 @@ app.post("/depdata/",async(req,res)=>{
       }
       if(dep1) {
         console.log("Department Created")
+        //var dept = dep1
         var sess = new Session()
         sess.name=dep.name
         sess.admin=dep.admin
@@ -342,8 +354,7 @@ app.post("/depdata/",async(req,res)=>{
           { $set: { sid: sess._id } },
           () => console.log(sess._id)
         )
-        res.redirect('/depdata');
-        //Emit the event
+        
         io.emit("depcreated",req.body)
       }
       else {
@@ -403,6 +414,11 @@ app.get("/sessions/:sid",(req,res)=>
     })
     console.log("Sessions Data Accessed");
   })
+  if(req.headers.accept.indexOf('text/html')>-1){
+    res.render('users',);
+  }else {
+    res.send();
+  }
 })
 
 //accepting a session
