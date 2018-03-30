@@ -21,25 +21,25 @@
       <div class="py-5 text-center">
 
         <h2>Kurakani Dashboard</h2>
-        <p class="lead">Inter-Departmental Messaging app which is not like Whatsapp.</p>
+        <p class="lead">Inter-Departmental Messaging app for the Govt. of Sikkim.</p>
       </div>
 
       <div class="row">
         
         <div class="col-md-12 order-md-1">
           <h4 class="mb-3">Description of the Department</h4>
-          <form method="post" action="/server/depdata" class="departments" >
+          <form method="post" action="/depdata" class="departments" >
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="firstName">Department name <span class="text-muted">(required)</span></label>
-                <input type="text" class="form-control" name="name" placeholder="" value="" required>
+                <label for="name">Department name <span class="text-muted">(required)</span></label>
+                <input type="text" class="form-control" name="name" placeholder="Department name" required>
                 <div class="invalid-feedback">
                   Valid Department name is required.
                 </div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="lastName">Location <span class="text-muted">(required)</span></label>
-                <input type="text" class="form-control" name="location" placeholder="" value="" required>
+                <label for="location">Location <span class="text-muted">(required)</span></label>
+                <input type="text" class="form-control" name="location" placeholder="Location" value="" required>
                 <div class="invalid-feedback">
                   Valid loction is required.
                 </div>
@@ -48,10 +48,10 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="email">Admin Id <span class="text-muted">(required)</span></label>
-                <input type="email" class="form-control" name="admin" placeholder="you@sik-gov.com">
+                <label for="admin">Admin Employee Id <span class="text-muted">(required)</span></label>
+                <input type="text" class="form-control" name="admin" placeholder="ABCD-1234">
                 <div class="invalid-feedback">
-                  Please enter a valid email address.
+                  Please enter a valid empployee id.
                 </div>
               </div>
               <div class="col-md-6 mb-3">

@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 module.exports = mongoose.model("Department",{
   id: String,
   name: String,
-  location:String,
+  location: String,
   admin: String,
-  sid:String
+  sid: String
 });

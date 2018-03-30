@@ -1,24 +1,24 @@
-var express = require("express")
-var mongoose = require("mongoose")
-var bodyParser = require("body-parser")
+var express = require("express");
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
 var AutoIncrement=require('mongoose-sequence')(mongoose);
-var app = express()
+var app = express();
 var expressValidator = require('express-validator');
-var http = require("http").Server(app)
-var io = require("socket.io")(http)
-var path = require('path')
-var session = require('express-session')
-var passport = require('passport')
-var LocalStrategy = require('passport-local').Strategy
-var flash = require('connect-flash')
+var http = require("http").Server(app);
+var io = require("socket.io")(http);
+var path = require('path');
+var session = require('express-session');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+var flash = require('connect-flash');
 
 var conString = "mongodb://localhost:27017/mylearning";
 //var conString = "mongodb://localhost:27017/mylearning";
 //app.use(express.static(__dirname))
 
-var routes = require('./routes/index')
-var users = require('./routes/users')
-var server = require('./server')
+var routes = require('./routes/index');
+var users = require('./routes/users');
+var server = require('./server');
 
 var User = require('./models/user');
 var Department = require('./models/department');
@@ -27,29 +27,29 @@ var Messages = require('./models/message');
 var Broadcast = require('./models/broadcast');
 
 //view engine
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'ejs')
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 //Set static folder
 app.use(express.static(path.join(__dirname,'public')));
-app.use('/css', express.static(__dirname+ '/node_modules/bootstrap/dist/css'))
+app.use('/css', express.static(__dirname+ '/node_modules/bootstrap/dist/css'));
 
 //Body-parser Middleware
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //Express session Middleware
 app.use(session({
   secret:'secret',
   saveUninitialized: true,
   resave: true
-}))
+}));
 
 //Passport Middleware
-app.use(passport.initialize())
-app.use(passport.session())
+app.use(passport.initialize());
+app.use(passport.session());
 
-mongoose.Promise = Promise
+mongoose.Promise = Promise;
 
 //Express Vvlidator Middleware
 app.use(expressValidator({
@@ -84,8 +84,8 @@ app.get('*', function(req, res, next) {
 
 //Connecting to the database
 mongoose.connect(conString, { useMongoClient: true }, (err) => {
-    console.log("Database connection", err)
-})
+    console.log("Database connection", err);
+});
 
 //Saving chats in the database
 //Changes
@@ -93,7 +93,7 @@ app.post("/messages", async (req, res) => {
     try {
         var name,des,dep;
         var message = new Messages(req.body);
-        var d = new Date()
+        var d = new Date();
         var mum_offset = 5.5*60;
         d.setMinutes(d.getMinutes() + mum_offset);
         message.created_at=d;
@@ -107,8 +107,8 @@ app.post("/messages", async (req, res) => {
           Department.findOne({id:user.department},(err,dep)=>{
              message.send_dep =dep.name;
              //console.log("1"+message.send_dep)
-             var me = new Messages(message)
-             me.save()
+             var me = new Messages(message);
+             me.save();
              console.log(me);
              io.emit("chat",me);
           })
@@ -297,12 +297,13 @@ app.get("/depdata/:id",(req,res)=>{
 app.post("/depdata/",async(req,res)=>{
   try{
     var dep = new Department(req.body)
-    Department.findOne({id:dep.id},async(err,dep1)=>{
-      if(err){
+    console.log(req.body);
+    await dep.save()
+    Department.findOne({ id: dep.id }, async(err, dep1) => {
+      if(err) {
         return err
       }
-      if(!dep1){
-        await dep.save()
+      if(dep1) {
         console.log("Department Created")
         var sess = new Session()
         sess.name=dep.name
@@ -310,25 +311,25 @@ app.post("/depdata/",async(req,res)=>{
         sess.created_at=new Date()
         sess.save()
         var x=sess._id
-        console.log(dep.id)
+        console.log(dep1._id)
         Department.findByIdAndUpdate(dep._id,
-           {$set:{sid:sess._id}},
-           () => console.log(sess._id)
-          )
-        res.sendStatus(200)
+          { $set: { sid: sess._id } },
+          () => console.log(sess._id)
+        )
+        res.redirect('/depdata');
         //Emit the event
         io.emit("depcreated",req.body)
       }
-      else{
-        res.status(500).send({code:'DAE',message:'Department Already Exists'})
+      else {
+        res.status(500).send({message:'Department not created'})
       }
     })
 
-  }catch(error){
+  } catch(error) {
     res.sendStatus(500)
     console.error(error)
   }
-})
+});
 
 //find sessions the employee is invited to
 app.get("/findinvites/:id",(req,res)=>{
