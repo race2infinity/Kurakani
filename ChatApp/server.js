@@ -284,7 +284,14 @@ app.get("/userdata/:id/", (req, res) => {
         return res.status(500).send({ message: 'Something went wrong' });
       }
       console.log("Users Accesed")
-      return res.send(user)
+      if (req.headers.accept.indexOf('text/html') > -1) {
+        return Department.findById(user.department, 'name', (err, dep) => {
+          user.departmentDetails = { name: dep.name };
+          return res.render('user', { user: user });
+        });
+      } else {
+        return res.send(user)
+      }
     });
 })
 
