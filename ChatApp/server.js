@@ -363,21 +363,21 @@ app.get("/depdata",(req,res)=>{
 })
 
 //fetching employees from a department
-app.get("/depdata/:id",(req,res)=>{
-  var id=req.params.id
-  User.find({department:id},(error,user)=>{
+app.get("/depdata/:id", (req, res) => {
+  var id = req.params.id;
+  User.find({ department: id }, '-password1 -password2 -aadhar', (error, users) => {
     if (error) {
-      return res.status(500).send({message: "Something went wrong"});
+      return res.status(500).send({ message: "Something went wrong" });
     }
+    console.log("Department User Accessed");
 
     if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
       return res.render('users', { users: users });
     } else {
       return res.send(users);
     }
-      console.log("Department User Accessed")
-  })
-})
+  });
+});
 
 //Creating a department
 app.post("/depdata/",async(req,res)=>{
