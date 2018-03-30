@@ -11,6 +11,9 @@ module.exports = mongoose.model("User",{
   sessions :[{
     type:String
   }],
+  events :[{
+    type:String
+  }],
   dname:String,
   aadhar: String,
   designation: String,

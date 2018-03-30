@@ -26,6 +26,7 @@ var Session = require('./models/session');
 var Messages = require('./models/message');
 var Broadcast = require('./models/broadcast');
 
+var Events = require('./models/events');
 //view engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -434,8 +435,30 @@ app.get("/findsessions/:id",(req,res)=>{
   })
 })
 
-//inviting to an event
-app.post("/events",)
+//creating  a new Event
+app.post("/events",async(req,res)=>{
+  try{
+    var event = new Events(req.body);
+    var d = new Date()
+    var mum_offset = 5.5*60;
+    d.setMinutes(d.getMinutes() + mum_offset);
+    event.created_at= d;
+    User.findOne({empid:event.creator},(err,user)=>{
+      event.creat_name=user.name;
+      var ev = new Events(event);
+      ev.save();
+    })
+    await event.save();
+    console.log("Event Created");
+    console.log(req.body)
+    res.sendStatus(200);
+    //Emit the event
+    //io.emit("sessioncreate",req.body);
+  }catch(error){
+      res.sendStatus(500);
+      console.error(error);
+  }
+})
 
 //declining a session
 app.post("/sessions/no",(req,res)=>{
@@ -444,6 +467,19 @@ app.post("/sessions/no",(req,res)=>{
   console.log(id,sid, req.body);
   Session.findByIdAndUpdate(
     sid,
+    { $pull: { invited: id } },
+    () => console.log('User removed')
+  );
+})
+
+
+//declining an event
+app.post("/events/no",(req,res)=>{
+  const eid = req.body.eid;
+  const id = req.body.id;
+  console.log(id,eid, req.body);
+  Event.findByIdAndUpdate(
+    eid,
     { $pull: { invited: id } },
     () => console.log('User removed')
   );
@@ -472,6 +508,17 @@ app.get("/sessions/:sid",(req,res)=>
   }
 })
 
+//Searching a message
+app.post("/search",(req,res)=>{
+    var sid = req.body.sid
+    var msg = req.body.msg
+    Messages.find({_id:sid,body:{$regex:msg}},(err,message)=>{
+      res.send(message);
+    })
+    res.sendStatus(200);
+    //console.error(error);
+})
+
 //accepting a session
 app.post("/sessions/yes",(req,res)=>
 {
@@ -487,10 +534,39 @@ app.post("/sessions/yes",(req,res)=>
     { $push: { members: id } },
     () => console.log('User added')
   );
-  User.findByIdAndUpdate(
-
-  )
+  User.update({empid:id},
+    { $push : { sessions: sid } },
+    ()=>console.log('User profile updated')
+  );
+  res.sendStatus(200)
 })
+
+
+
+
+//accepting an event
+app.post("/events/yes",(req,res)=>
+{
+  var eid = req.body.eid;
+  var id=req.body.id;
+  Events.findByIdAndUpdate(
+    eid,
+    { $pull: { invited: id } },
+    () => console.log('User removed')
+  );
+  Events.findByIdAndUpdate(
+    eid,
+    { $push: { members: id } },
+    () => console.log('User added')
+  );
+  User.update({empid:id},
+    { $push : { events: eid } },
+    ()=>console.log('User profile updated')
+  );
+  res.sendStatus(200)
+
+})
+
 //creating a socket connection
 io.on("connection", (socket) => {
     console.log("Socket is connected...")
@@ -552,6 +628,10 @@ app.post("/leavesession/",(req,res)=>{
             ()=>console.log("User left session")
           );
         }
+        User.update({empid:empid},
+            { $pull:{sessions:sid}},
+            ()=>console.log("User profile updated")
+        )
       }
       res.sendStatus(200)
     }

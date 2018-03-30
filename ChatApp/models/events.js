@@ -4,6 +4,7 @@ var Schema = mongoose.Schema
 
 var EventSchema=new Schema({
   name: String,
+  venue:String,
   creator : String,
   creat_name: String,
   members: [{
@@ -13,10 +14,10 @@ var EventSchema=new Schema({
       type: String
   }],
   starts_at:{
-    type:Date
+    type : Date
   },
   ends_at:{
-    type = Date
+    type:Date
   },
   created_at: {
       type: Date,
