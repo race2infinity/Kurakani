@@ -11,6 +11,7 @@ var session = require('express-session')
 var passport = require('passport')
 var LocalStrategy = require('passport-local').Strategy
 var flash = require('connect-flash')
+const SocketIOFile = require('socket.io-file')
 
 var conString = "mongodb://localhost:27017/mylearning";
 //var conString = "mongodb://localhost:27017/mylearning";
@@ -132,7 +133,37 @@ app.post("/messages", async (req, res) => {
         console.error(error);
     }
 })
-//192.168.0.5
+
+app.post("/file",(req,res)=>
+{
+    var uploader = new SocketIOFile(socket,{
+      uploadDir:'../',
+      maxFileSize:5242880,
+      chunkSize:51200,
+      accepts:['image/jpeg', 'image/png'],
+      transmissionDelay:0,
+      overwrite:true
+    });
+    uploader.on('start',(fileInfo)=>{
+        console.log('Start uploading');
+        console.log(fileInfo);
+    });
+    uploader.on('stream', (fileInfo) => {
+        console.log(`${fileInfo.wrote} / ${fileInfo.size} byte(s)`);
+    });
+    uploader.on('complete', (fileInfo) => {
+        console.log('Upload Complete.');
+        console.log(fileInfo);
+    });
+    uploader.on('error', (err) => {
+        console.log('Error!', err);
+    });
+    uploader.on('abort', (fileInfo) => {
+        console.log('Aborted: ', fileInfo);
+    });
+
+});
+
 //fetching messages from the database
 //Changes
 app.get("/messages/:seid", (req, res) => {
@@ -152,12 +183,17 @@ app.post("/newsession",async(req,res)=>{
     d.setMinutes(d.getMinutes() + mum_offset);
     session.created_at= d;
     session.LastMT=d;
+    User.findOne({empid:session.admin},(err,user)=>{
+      session.admin_name=user.name;
+      var se = new Session(session);
+      se.save();
+    })
     await session.save();
     console.log("Session Created");
     console.log(req.body)
     res.sendStatus(200);
     //Emit the event
-    io.emit("sessioncreate",req.body);
+    //io.emit("sessioncreate",req.body);
   }catch(error){
       res.sendStatus(500);
       console.error(error);
@@ -175,6 +211,7 @@ app.get("/broadcast", (req, res) => {
 //Saving broadcast in the database
 app.post("/broadcast", async (req, res) => {
     try {
+    console.log(req.body)
         var bcast = new Broadcast(req.body)
         var d = new Date()
         var mum_offset = 5.5*60;
@@ -212,12 +249,23 @@ app.post("/userdata/",async(req,res)=>{
       }
       if(!user1){
         if(user.password1==user.password2){
+          Department.findOne({id:user.department},(err,depart)=>{
+            if(err){
+              return err
+            }
+            else {
+                user.dname=depart.name
+                user.markModified('dname')
+                user.save()
+            }
+          })
         await user.save()
         console.log("User Created")
         Department.findOne({id:user.department},(err,dep)=>{
         	Session.findByIdAndUpdate(
 			dep.sid,
 			{ $push: { members: user.empid } },
+
 			() => console.log('User added')
 		  );
         })
@@ -278,6 +326,7 @@ app.get("/userdata/:id/", (req, res) => {
 
 //fetching data of departments
 app.get("/depdata",(req,res)=>{
+  console.log(req.headers)
     Department.find({},(error,dep)=>{
       res.send(dep)
       console.log("Departments Accessed")
@@ -348,6 +397,9 @@ app.get("/findsessions/:id",(req,res)=>{
   })
 })
 
+//inviting to an event
+app.post("/events",)
+
 //declining a session
 app.post("/sessions/no",(req,res)=>{
   const sid = req.body.sid;
@@ -393,11 +445,19 @@ app.post("/sessions/yes",(req,res)=>
     { $push: { members: id } },
     () => console.log('User added')
   );
+  User.findByIdAndUpdate(
+
+  )
 })
 //creating a socket connection
 io.on("connection", (socket) => {
     console.log("Socket is connected...")
+
 })
+
+
+
+
 
 //adding to a session
 app.post("/addsession/",(req,res)=>{
@@ -413,7 +473,7 @@ app.post("/addsession/",(req,res)=>{
       session.invited.push(id);
     });
     console.log("new value: "+session.invited)
-      // session.markModified('invited')
+      session.markModified('invited')
       session.save();
   })
   res.sendStatus(200)
@@ -427,9 +487,20 @@ app.post("/leavesession/",(req,res)=>{
     if(err)
       return console.log(err);
     else {
+      console.log(sa.admin)
       if(sa.admin==empid){
-        { $pull : { members : empid } }
-        {$set : {admin:$arrayElemAt: [ "$members", 2 ] }}
+
+        console.log("Admin : "+ sa.admin)
+        Session.findByIdAndUpdate(
+          sid,
+          { $pull : { members : empid } },
+          ()=>console.log("Admin left session")
+        );
+        /*Session.findByIdAndUpdate(
+          sid,
+        { $set : { admin : $arrayElemAt : [ "$members", 1 ] } },
+        ()=>console.log("Admin Replaced")
+      );*/
       }
       else {
         {
@@ -448,6 +519,18 @@ app.post("/leavesession/",(req,res)=>{
 //deleting a session
 app.post("/deletesession/",(req,res)=>{
   var sid = req.body.sid;
+  Session.remove({_id:sid},function(err){
+    if(!err)
+    {
+      console.log("Session Deleted");
+      res.sendStatus(200);
+    }
+    else {
+      {
+        console.error(err);
+      }
+    }
+  })
 
 })
 

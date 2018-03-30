@@ -8,6 +8,10 @@ module.exports = mongoose.model("User",{
   mobile_no: String,
   location: String,
   department: String,
+  sessions :[{
+    type:String
+  }],
+  dname:String,
   aadhar: String,
   designation: String,
   password1:String,
