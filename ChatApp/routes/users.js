@@ -5,6 +5,7 @@ var db = mongojs('dummydata', ['admin']);
 var bcrypt = require('bcryptjs');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var Admin = require('../models/admin');
 
 //Login Page - Get
 router.get('/login', function(req, res){
@@ -61,13 +62,13 @@ passport.serializeUser(function(user, done){
 });
 
 passport.deserializeUser(function(id, done) {
-    db.admin.findOne({_id: mongojs.ObjectId(id)}, function(err,user) {
+    Admin.findOne({_id: mongojs.ObjectId(id)}, function(err,user) {
         done(err, user);
     });
 });
 
 passport.use(new LocalStrategy(function(username, password, done){
-    db.admin.findOne({empid: username}, function(err, user) {
+    Admin.findOne({empid: username}, function(err, user) {
             if(err) {
                 return done(err);
             }

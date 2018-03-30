@@ -20,6 +20,12 @@ var routes = require('./routes/index')
 var users = require('./routes/users')
 var server = require('./server')
 
+var User = require('./models/user');
+var Department = require('./models/department');
+var Session = require('./models/session');
+var Messages = require('./models/message');
+var Broadcast = require('./models/broadcast');
+
 //view engine
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
@@ -44,23 +50,6 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 mongoose.Promise = Promise
-
-
-//MongoDB schema for Messages
-//Change
-var Messages = mongoose.model("Messages", {
-    sender: String,
-    send_name: String,
-    send_des: String,
-    send_dep: String,
-    sess_id:String,
-    body: String,
-    created_at: {
-      type: Date,
-      default: new Date()
-  }
-})
-
 
 //Express Vvlidator Middleware
 app.use(expressValidator({
@@ -92,63 +81,6 @@ app.get('*', function(req, res, next) {
     res.locals.user = req.user || null;
     next();
 });
-
-//MongoDB schema for Super
-//Change
-var Super = mongoose.model("Super",{
-  empid:String,
-  password:String
-})
-
-//MongoDB schema for Super
-//Change
-var Admin = mongoose.model("Admin",{
-  empid:String,
-  password:String
-})
-
-//MongoDB schema for users
-var User = mongoose.model("User",{
-  name: String,
-  empid: String,
-  emailid: String,
-  mobile_no: String,
-  location: String,
-  department: String,
-  aadhar: String,
-  designation: String,
-  password1:String,
-  password2:String
-})
-
-//MongoDB schema for Departments
-var Department = mongoose.model("Department",{
-  id: String,
-  name: String,
-  location:String,
-  admin: String,
-  sid:String
-})
-
-//MongoDB schema for Sessions
-var Session = mongoose.model("Session",{
-  name: String,
-  admin : String,
-  Lastmessage: String,
-  LastMT:{
-    type:Date,
-    default:new Date()
-  },
-  members: [{
-      type: String
-  }],
-  invited: [{
-      type: String
-  }],
-  created_at: {
-      type: Date,
-      default: new Date()
-    }});
 
 //Connecting to the database
 mongoose.connect(conString, { useMongoClient: true }, (err) => {
