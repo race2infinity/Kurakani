@@ -244,14 +244,26 @@ app.get("/broadcast", (req, res) => {
 app.post("/broadcast", async (req, res) => {
     try {
         var bcast = new Broadcast(req.body)
-        await bcast.save()
         var d = new Date()
         var mum_offset = 5.5*60;
         d.setMinutes(d.getMinutes() + mum_offset);
         bcast.created_at=d;
-        res.sendStatus(200)
-        //Emit the event
-        io.emit("broadcast", req.body)
+        User.findOne({empid:bcast.sender},(err,user)=>{
+           bcast.send_name =user.name;
+           bcast.send_des =user.designation;
+          Department.findOne({id:user.department},(err,dep)=>{
+             bcast.send_dep =dep.name;
+             var bc = new Broadcast(bcast)
+             bc.save()
+             console.log(bc);
+             //Emit the event
+             io.emit("broadcast", bc)
+             res.sendStatus(200)
+          })
+        })
+        await bcast.save()
+        //res.sendStatus(200)
+
     } catch (error) {
         res.sendStatus(500)
         console.error(error)
@@ -460,25 +472,18 @@ app.post("/addsession/",(req,res)=>{
   var sid = req.body.sid;
   var empid = req.body.id;
   var i =0;
-  console.log(empid)
-  console.log(empid.length)
-  /*for (i = 0; i < empid.length; i++) {
-    console.log(empid[i])
-	}*/
-	/*Session.findOne({_id:sid},(err,ses)=>{
-		for (i = 0; i < empid.length; i++) {
-    	ses.invited.push(empid[i])
-	}
-	})*/
-  //console.log({$in:empid})
-  Session.findByIdAndUpdate(
-    sid,
-    //for (i = 0; i < empid.length; i++) {
-    { $push : { invited : empid } },
-	//},
-
-    ()=>console.log("")
-  );
+  Session.findById(sid, function(err, session){
+    if(err)
+    {
+      res.sendStatus(400)
+    }
+    empid.forEach(function(id){
+      session.invited.push(id);
+    });
+    console.log("new value: "+session.invited)
+      // session.markModified('invited')
+      session.save();
+  })
   res.sendStatus(200)
 })
 
