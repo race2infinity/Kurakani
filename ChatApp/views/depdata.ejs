@@ -1,24 +1,50 @@
-<%- include('includes/depheader') %>
-<div class="table-responsive"></div>
-<h2>Departments</h2>
-<table class="department table table-striped table-sm">
-	<thead>
-		<tr>
-			<th>ID</th>	
-			<th>Department Name</th>
-			<th>Location</th>
-			<th>Admin ID</th>
-		</tr>
-	</thead>
-	<tbody>
-	<% department.forEach(function(department){%>
-		<tr>
-			<td><span><%= department.id %></span></td>
-			<td><span><%= department.name %></span></td>
-			<td><span><%= department.location %></span></td>
-			<td><span><%= department.admin %></span></td>
-		</tr>
-	<% }); %>
-	</tbody>
-</table>
-<%- include('includes/deptfooter') %>
+<%- include('includes/header') %>
+<%- include('includes/navbar') %>
+<div class="container">
+  <h2>Departments</h2>
+  <table class="department table table-striped table-sm table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>	
+        <th>Department Name</th>
+        <th>Location</th>
+        <th>Admin ID</th>
+      </tr>
+    </thead>
+    <tbody>
+    <% department.forEach(function(department){%>
+      <tr>
+        <td><span><%= department.id %></span></td>
+        <td><span><a href=<%= `/depdata/${department._id}` %>><%= department.name %></a></span></td>
+        <td><span><%= department.location %></span></td>
+        <td><span><%= department.admin %></span></td>
+      </tr>
+    <% }); %>
+    </tbody>
+  </table>
+  <div class='clear'></div>
+  <h2>Sessions</h2>
+  <table class="department table table-striped table-sm table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>	
+        <th>Admin Name</th>
+        <th>Member Count</th>
+        <th>Created At</th>
+        <th><i class='fa fa-paperclip'></th>
+      </tr>
+    </thead>
+    <tbody>
+    <% sessions.forEach(function(session){%>
+      <tr>
+        <td><%= session.name %></td>
+        <td><span><%= session.admin_name %></span></td>
+        <td><span><%= session.members.length %></span></td>
+        <td><span><%= new Date(session.created_at) %></span></td>
+        <td><span><a href=<%= `/export/${session._id}` %>>Export</a></span></td>
+      </tr>
+    <% }); %>
+    </tbody>
+  </table>
+</div>
+<%- include('includes/footer') %>

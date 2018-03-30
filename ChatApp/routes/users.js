@@ -49,7 +49,6 @@ router.post('/dash', function(req, res){
             Dept_id: DeptID
         });
     } else {
-        //if()
     }
 });
 
@@ -83,14 +82,15 @@ passport.deserializeUser(function(id, done) {
 });
 
 passport.use(new LocalStrategy(function(username, password, done){
-    console.log(typeof username, typeof password)
+    console.log(username, password)
     Admin.findOne({empid: username}, function(err, user) {
+            console.log(user);
             if(err) {
                 console.log("err")
                 return done(err);
             }
             if(!user){
-                console.log("not user");
+                console.log(user);
                 return done(null, false, {message: 'Incorrect Username'});
             }
             if(!user.password) {
@@ -114,7 +114,7 @@ passport.use(new LocalStrategy(function(username, password, done){
 //}
 router.post('/login', passport.authenticate('local', {
     //console.log('success');
-    successRedirect: 'dash', failureRediect: '/users/login', failureFlash: 'Invalid Username or Password' }),
+    successRedirect: '/depdata', failureRediect: '/users/login', failureFlash: 'Invalid Username or Password' }),
     function(req, res){
         console.log('Authentication successful');
         res.render('dash');
@@ -123,7 +123,7 @@ router.post('/login', passport.authenticate('local', {
 router.get('/logout', function(req, res){
     req.logout();
     req.flash('success', 'You have logged out');
-    req.redirect('/users/login');
+    res.redirect('/users/login');
 })
 
 module.exports = router;
