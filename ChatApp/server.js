@@ -18,6 +18,7 @@ var conString = "mongodb://localhost:27017/mylearning";
 
 var routes = require('./routes/index')
 var users = require('./routes/users')
+var server = require('./server')
 
 //view engine
 app.set('views', path.join(__dirname, 'views'))
