@@ -67,7 +67,7 @@ passport.deserializeUser(function(id, done) {
 });
 
 passport.use(new LocalStrategy(function(username, password, done){
-    db.admin.findOne({username: username}, function(err, user) {
+    db.admin.findOne({empid: username}, function(err, user) {
             if(err) {
                 return done(err);
             }
@@ -78,8 +78,8 @@ passport.use(new LocalStrategy(function(username, password, done){
                 return done(null, false, { message: 'Incorrect password.'});
             }
             return done(null, user);
-            /*
-            bcrypt.compare(password, user.password, function(err, isMatch){
+            
+            /*bcrypt.compare(password, user.password, function(err, isMatch){
                 if(err) {
                     return done(err);
                 }

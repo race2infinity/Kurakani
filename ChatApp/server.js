@@ -105,14 +105,14 @@ var Broadcast = mongoose.model("Broadcast", {
 //MongoDB schema for Super
 //Change
 var Super = mongoose.model("Super",{
-  emailid:String,
+  empid:String,
   password:String
 })
 
 //MongoDB schema for Super
 //Change
 var Admin = mongoose.model("Admin",{
-  emailid:String,
+  empid:String,
   password:String
 })
 
@@ -335,7 +335,7 @@ app.post("/login/app", (req,res)=>{
 //fetching data of user from id
 app.get("/userdata/:id/", (req, res) => {
     var id = req.params.id
-    User.find({empid:id},'-password -aadhar', (error, user) => {
+    User.findOne({empid:id},'-password1 -password2 -aadhar', (error, user) => {
         res.send(user)
         console.log("Users Accesed")
     })
@@ -426,12 +426,19 @@ app.post("/sessions/no",(req,res)=>{
 })
 
 //session profile
-app.get("/sessions",(req,res)=>
+app.get("/sessions/:sid",(req,res)=>
 {
-    var sid = req.body.sid;
-    Sessions.find({_id:sid},(err,ses)=>
+    var sid = req.params.sid;
+    console.log(sid);
+    Session.findOne({_id:sid},(err,ses)=>
   {
-    res.send(ses);
+    User.find({empid:{$in:ses.members}},'-mobile_no -emailid -_id -__v -location -password1 -password2 -aadhar',(err,users)=>{
+    	const result={
+    		name:ses.name,
+    		emps:users
+    	}
+    	return res.send(result)
+    })
     console.log("Sessions Data Accessed");
   })
 })
@@ -461,11 +468,27 @@ io.on("connection", (socket) => {
 app.post("/addsession/",(req,res)=>{
   var sid = req.body.sid;
   var empid = req.body.id;
-  Session.findByIdandUpdate(
+  var i =0;
+  console.log(empid)
+  console.log(empid.length)
+  /*for (i = 0; i < empid.length; i++) {
+    console.log(empid[i])
+	}*/
+	/*Session.findOne({_id:sid},(err,ses)=>{
+		for (i = 0; i < empid.length; i++) {
+    	ses.invited.push(empid[i])
+	}
+	})*/
+  //console.log({$in:empid})
+  Session.findByIdAndUpdate(
     sid,
-    { $push : { members : empid } },
-    ()=>console.log("User added to session")
+    //for (i = 0; i < empid.length; i++) {
+    { $push : { invited : empid } },
+	//},
+ 
+    ()=>console.log("")
   );
+  res.sendStatus(200)
 })
 
 //leaving a session
@@ -482,13 +505,14 @@ app.post("/leavesession/",(req,res)=>{
       }
       else {
         {
-          Session.findByIdandUpdate(
+          Session.findByIdAndUpdate(
             sid,
             { $pull : { members : empid } },
             ()=>console.log("User left session")
           );
         }
       }
+      res.sendStatus(200)
     }
   })
 })
