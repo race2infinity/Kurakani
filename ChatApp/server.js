@@ -331,7 +331,7 @@ app.get("/userdata/:id/", (req, res) => {
         return res.status(500).send({ message: 'Something went wrong' });
       }
       console.log("Users Accesed")
-      if (req.headers.accept.indexOf('text/html') > -1) {
+      if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
         return Department.findById(user.department, 'name', (err, dep) => {
           user.departmentDetails = { name: dep.name };
           return res.render('user', { user: user });
@@ -369,10 +369,11 @@ app.get("/depdata/:id",(req,res)=>{
     if (error) {
       return res.status(500).send({message: "Something went wrong"});
     }
-    if (req.headers.accept.indexOf('text/html')>-1){
-      return res.render('users', {users: users});
-    }else {
-      res.send(user);
+
+    if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
+      return res.render('users', { users: users });
+    } else {
+      return res.send(users);
     }
       console.log("Department User Accessed")
   })
@@ -383,7 +384,7 @@ app.post("/depdata/",async(req,res)=>{
   try{
     var dep = new Department(req.body)
     console.log(req.body);
-    await dep.save()
+    await dep.save();
     Department.findOne({ id: dep.id }, async(err, dep1) => {
       if(err) {
         return err
