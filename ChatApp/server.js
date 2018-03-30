@@ -92,16 +92,6 @@ app.get('*', function(req, res, next) {
     next();
 });
 
-//MongoDB schema for Broadcast
-var Broadcast = mongoose.model("Broadcast", {
-    sender: String,
-    body: String,
-    created_at: {
-      type: Date,
-      default: new Date()
-  }
-})
-
 //MongoDB schema for Super
 //Change
 var Super = mongoose.model("Super",{
@@ -485,7 +475,7 @@ app.post("/addsession/",(req,res)=>{
     //for (i = 0; i < empid.length; i++) {
     { $push : { invited : empid } },
 	//},
- 
+
     ()=>console.log("")
   );
   res.sendStatus(200)

@@ -53,7 +53,7 @@ router.post('/admin', passport.authenticate('local', {
     successRedirect: 'admin_dash', failureRedirect: '/users/admin', failureFlash: true}),
     function(req, res) {
         console.log('Authentication successful');
-        res.render('admin_dasht');        
+        res.render('admin_dasht');
 });
 
 passport.serializeUser(function(user, done){
@@ -62,7 +62,7 @@ passport.serializeUser(function(user, done){
 
 passport.deserializeUser(function(id, done) {
     db.admin.findOne({_id: mongojs.ObjectId(id)}, function(err,user) {
-        done(err, user); 
+        done(err, user);
     });
 });
 
@@ -78,7 +78,7 @@ passport.use(new LocalStrategy(function(username, password, done){
                 return done(null, false, { message: 'Incorrect password.'});
             }
             return done(null, user);
-            
+
             /*bcrypt.compare(password, user.password, function(err, isMatch){
                 if(err) {
                     return done(err);
@@ -93,10 +93,10 @@ passport.use(new LocalStrategy(function(username, password, done){
 }));
 
 router.post('/login', passport.authenticate('local', {
-    successRedirect: 'dash', failureRediect: '/users/login', failureFlash: 'Invalid Username or Password' }), 
+    successRedirect: 'dash', failureRediect: '/users/login', failureFlash: 'Invalid Username or Password' }),
     function(req, res){
         console.log('Authentication successful');
-        res.render('dash');  
+        res.render('dash');
 });
 
 router.get('/logout', function(req, res){
