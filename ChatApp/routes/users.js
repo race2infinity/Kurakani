@@ -49,7 +49,6 @@ router.post('/dash', function(req, res){
             Dept_id: DeptID
         });
     } else {
-        //if()
     }
 });
 

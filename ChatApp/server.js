@@ -343,29 +343,25 @@ app.get("/userdata/:id/", (req, res) => {
 })
 
 //fetching data of departments
-app.get("/depdata",(req,res)=>{
-  console.log(req.headers)
-    Department.find({},(error,dep)=>{
-      if (error) {
-        return res.status(500).send({message: "ERROR"})
-      }
-      if (req.headers.accept.indexOf('text/html')>-1){
-        //var list=dep
-        //console.log(dep)
-        //fs.readfile
-        return res.render('depdata',{department: dep})
-      } else {
-        console.log(dep)
-      res.send(dep)
-      }
-      console.log("Departments Accessed")
-    })
-})
+app.get("/depdata", (req, res) => {
+  Department.find({}, (error, dep)=>{
+    if (error) {
+      return res.status(500).send({message: "ERROR"})
+    }
+    if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
+      return Session.find({}, 'name admin_name members created_at', (error, sessions) => {
+        return res.render('depdata', { department: dep, sessions: sessions });
+      });
+    } else {
+      return res.send(dep)
+    }
+  });
+});
 
 //fetching employees from a department
 app.get("/depdata/:id", (req, res) => {
   var id = req.params.id;
-  User.find({ department: id }, '-password1 -password2 -aadhar', (error, users) => {
+  return User.find({ department: id }, '-password1 -password2 -aadhar', (error, users) => {
     if (error) {
       return res.status(500).send({ message: "Something went wrong" });
     }
@@ -380,10 +376,9 @@ app.get("/depdata/:id", (req, res) => {
 });
 
 //Creating a department
-app.post("/depdata/",async(req,res)=>{
-  try{
-    var dep = new Department(req.body)
-    console.log(req.body);
+app.post("/depdata/", async(req, res) => {
+  try {
+    var dep = new Department(req.body);
     await dep.save();
     Department.findOne({ id: dep.id }, async(err, dep1) => {
       if(err) {
@@ -451,24 +446,25 @@ app.post("/sessions/no",(req,res)=>{
 })
 
 //session profile
-app.get("/sessions/:sid",(req,res)=>
-{
-    var sid = req.params.sid;
-    console.log(sid);
-    Session.findOne({_id:sid},(err,ses)=>
-  {
-    User.find({empid:{$in:ses.members}},'-mobile_no -emailid -_id -__v -location -password1 -password2 -aadhar',(err,users)=>{
-    	const result={
-    		name:ses.name,
-    		emps:users
-    	}
-    	return res.send(result)
-    })
+app.get("/sessions/:sid", (req, res) => {
+  var sid = req.params.sid;
+  console.log(sid);
+  Session.findOne({ _id: sid }, (err, ses) => {
+    User.find(
+      { empid: { $in: ses.members } },
+      '-mobile_no -emailid -_id -__v -location -password1 -password2 -aadhar',
+      (err,users) => {
+        const result = {
+          name:ses.name,
+          emps:users
+        };
+        return res.send(result)
+      });
     console.log("Sessions Data Accessed");
-  })
-  if(req.headers.accept.indexOf('text/html')>-1){
+  });
+  if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
     res.render('users',);
-  }else {
+  } else {
     res.send();
   }
 })
@@ -496,11 +492,7 @@ app.post("/sessions/yes",(req,res)=>
 io.on("connection", (socket) => {
     console.log("Socket is connected...")
 
-})
-
-
-
-
+});
 
 //adding to a session
 app.post("/addsession/",(req,res)=>{
@@ -578,8 +570,8 @@ app.post("/deletesession/",(req,res)=>{
 })
 
 //Define routes
-app.use('/',routes)
-app.use('/users', users)
+app.use('/', routes);
+app.use('/users', users);
 
 //creating a server
 var server = http.listen(3020, () => {
