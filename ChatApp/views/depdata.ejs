@@ -1,7 +1,8 @@
-<%- include('includes/depheader') %>
-<div class="table-responsive"></div>
+<%- include('includes/header') %>
+<%- include('includes/navbar') %>
+<div class="container">
 <h2>Departments</h2>
-<table class="department table table-striped table-sm">
+<table class="department table table-striped table-sm table-hover">
 	<thead>
 		<tr>
 			<th>ID</th>	
@@ -14,11 +15,12 @@
 	<% department.forEach(function(department){%>
 		<tr>
 			<td><span><%= department.id %></span></td>
-			<td><span><%= department.name %></span></td>
+			<td><span><a href=<%= `/depdata/${department._id}` %>><%= department.name %></a></span></td>
 			<td><span><%= department.location %></span></td>
 			<td><span><%= department.admin %></span></td>
 		</tr>
 	<% }); %>
 	</tbody>
 </table>
-<%- include('includes/deptfooter') %>
+</div>
+<%- include('includes/footer') %>
