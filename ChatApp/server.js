@@ -1,25 +1,24 @@
-var express = require("express")
-var mongoose = require("mongoose")
-var bodyParser = require("body-parser")
+var express = require("express");
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
 var AutoIncrement=require('mongoose-sequence')(mongoose);
-var app = express()
+var app = express();
 var expressValidator = require('express-validator');
-var http = require("http").Server(app)
-var io = require("socket.io")(http)
-var path = require('path')
-var session = require('express-session')
-var passport = require('passport')
-var LocalStrategy = require('passport-local').Strategy
-var flash = require('connect-flash')
-const SocketIOFile = require('socket.io-file')
-
+var http = require("http").Server(app);
+var io = require("socket.io")(http);
+var path = require('path');
+var session = require('express-session');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+var flash = require('connect-flash');
+// var Department = require('../models/department')
 var conString = "mongodb://localhost:27017/mylearning";
 //var conString = "mongodb://localhost:27017/mylearning";
 //app.use(express.static(__dirname))
 
-var routes = require('./routes/index')
-var users = require('./routes/users')
-var server = require('./server')
+var routes = require('./routes/index');
+var users = require('./routes/users');
+var server = require('./server');
 
 var User = require('./models/user');
 var Department = require('./models/department');
@@ -28,29 +27,29 @@ var Messages = require('./models/message');
 var Broadcast = require('./models/broadcast');
 
 //view engine
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'ejs')
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 //Set static folder
 app.use(express.static(path.join(__dirname,'public')));
-app.use('/css', express.static(__dirname+ '/node_modules/bootstrap/dist/css'))
+app.use('/css', express.static(__dirname+ '/node_modules/bootstrap/dist/css'));
 
 //Body-parser Middleware
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //Express session Middleware
 app.use(session({
   secret:'secret',
   saveUninitialized: true,
   resave: true
-}))
+}));
 
 //Passport Middleware
-app.use(passport.initialize())
-app.use(passport.session())
+app.use(passport.initialize());
+app.use(passport.session());
 
-mongoose.Promise = Promise
+mongoose.Promise = Promise;
 
 //Express Vvlidator Middleware
 app.use(expressValidator({
@@ -85,8 +84,8 @@ app.get('*', function(req, res, next) {
 
 //Connecting to the database
 mongoose.connect(conString, { useMongoClient: true }, (err) => {
-    console.log("Database connection", err)
-})
+    console.log("Database connection", err);
+});
 
 //Saving chats in the database
 //Changes
@@ -94,7 +93,7 @@ app.post("/messages", async (req, res) => {
     try {
         var name,des,dep;
         var message = new Messages(req.body);
-        var d = new Date()
+        var d = new Date();
         var mum_offset = 5.5*60;
         d.setMinutes(d.getMinutes() + mum_offset);
         message.created_at=d;
@@ -108,8 +107,8 @@ app.post("/messages", async (req, res) => {
           Department.findOne({id:user.department},(err,dep)=>{
              message.send_dep =dep.name;
              //console.log("1"+message.send_dep)
-             var me = new Messages(message)
-             me.save()
+             var me = new Messages(message);
+             me.save();
              console.log(me);
              io.emit("chat",me);
           })
@@ -286,7 +285,16 @@ app.post("/userdata/",async(req,res)=>{
     res.sendStatus(500)
     console.error(error)
   }
-})
+});
+
+app.post('/userdata/:id/verify', (req, res) => {
+  return User.findByIdAndUpdate(req.params.id, { verified: true }, (err, user) => {
+    if (err) {
+      return res.status(500).send({ message: 'Something went wrong' });
+    }
+    res.status(200).redirect(`/depdata/${user.department}`);
+  });
+});
 
 //logging in to the application
 app.post("/login/app", (req,res)=>{
@@ -319,16 +327,37 @@ app.post("/login/app", (req,res)=>{
 app.get("/userdata/:id/", (req, res) => {
     var id = req.params.id
     User.findOne({empid:id},'-password1 -password2 -aadhar', (error, user) => {
-        res.send(user)
-        console.log("Users Accesed")
-    })
+      if (error) {
+        return res.status(500).send({ message: 'Something went wrong' });
+      }
+      console.log("Users Accesed")
+      if (req.headers.accept.indexOf('text/html') > -1) {
+        return Department.findById(user.department, 'name', (err, dep) => {
+          user.departmentDetails = { name: dep.name };
+          return res.render('user', { user: user });
+        });
+      } else {
+        return res.send(user)
+      }
+    });
 })
 
 //fetching data of departments
 app.get("/depdata",(req,res)=>{
   console.log(req.headers)
     Department.find({},(error,dep)=>{
+      if (error) {
+        return res.status(500).send({message: "ERROR"})
+      }
+      if (req.headers.accept.indexOf('text/html')>-1){
+        //var list=dep
+        //console.log(dep)
+        //fs.readfile
+        return res.render('depdata',{department: dep})
+      } else {
+        console.log(dep)
       res.send(dep)
+      }
       console.log("Departments Accessed")
     })
 })
@@ -337,7 +366,14 @@ app.get("/depdata",(req,res)=>{
 app.get("/depdata/:id",(req,res)=>{
   var id=req.params.id
   User.find({department:id},(error,user)=>{
-      res.send(user)
+    if (error) {
+      return res.status(500).send({message: "Something went wrong"});
+    }
+    if (req.headers.accept.indexOf('text/html')>-1){
+      return res.render('users', {users: users});
+    }else {
+      res.send(user);
+    }
       console.log("Department User Accessed")
   })
 })
@@ -346,38 +382,39 @@ app.get("/depdata/:id",(req,res)=>{
 app.post("/depdata/",async(req,res)=>{
   try{
     var dep = new Department(req.body)
-    Department.findOne({id:dep.id},async(err,dep1)=>{
-      if(err){
+    console.log(req.body);
+    await dep.save()
+    Department.findOne({ id: dep.id }, async(err, dep1) => {
+      if(err) {
         return err
       }
-      if(!dep1){
-        await dep.save()
+      if(dep1) {
         console.log("Department Created")
+        //var dept = dep1
         var sess = new Session()
         sess.name=dep.name
         sess.admin=dep.admin
         sess.created_at=new Date()
         sess.save()
         var x=sess._id
-        console.log(dep.id)
+        console.log(dep1._id)
         Department.findByIdAndUpdate(dep._id,
-           {$set:{sid:sess._id}},
-           () => console.log(sess._id)
-          )
-        res.sendStatus(200)
-        //Emit the event
+          { $set: { sid: sess._id } },
+          () => console.log(sess._id)
+        )
+
         io.emit("depcreated",req.body)
       }
-      else{
-        res.status(500).send({code:'DAE',message:'Department Already Exists'})
+      else {
+        res.status(500).send({message:'Department not created'})
       }
     })
 
-  }catch(error){
+  } catch(error) {
     res.sendStatus(500)
     console.error(error)
   }
-})
+});
 
 //find sessions the employee is invited to
 app.get("/findinvites/:id",(req,res)=>{
@@ -428,6 +465,11 @@ app.get("/sessions/:sid",(req,res)=>
     })
     console.log("Sessions Data Accessed");
   })
+  if(req.headers.accept.indexOf('text/html')>-1){
+    res.render('users',);
+  }else {
+    res.send();
+  }
 })
 
 //accepting a session

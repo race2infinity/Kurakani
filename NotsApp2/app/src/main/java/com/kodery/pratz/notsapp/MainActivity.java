@@ -1,9 +1,12 @@
 package com.kodery.pratz.notsapp;
 
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,12 +20,29 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
     //SharedPreferences.Editor editor = sharedPref.edit();
     //public static String id= sharedPref.getString("userid", null);
 
+    public static String data;
 
-    public static String ip="http://192.168.0.8:3020";
+    public static String ip="http://192.168.43.150:3020";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -56,15 +77,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         String id = sharedPref.getString("userid","");
         Log.d("yuh",id);
 
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //ActionBar actionBar = getSupportActionBar();
-        //setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
         //ActionBar actionbar = getSupportActionBar();
         //actionbar.setDisplayHomeAsUpEnabled(true);
         //actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
@@ -82,19 +102,49 @@ public class MainActivity extends AppCompatActivity {
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-
+        mViewPager.setCurrentItem(1);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Creating session...", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                //Intent intent = new Intent(MainActivity.this, SessionUsers.class);
-                //startActivity(intent);
 
-                Intent intent = new Intent(MainActivity.this, newSession.class);
-                startActivity(intent);
+                switch (mViewPager.getCurrentItem()){
+                    case 2:
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("Broadcast Message");
 
+                        final EditText input = new EditText(MainActivity.this);
+
+                        input.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                        builder.setView(input);
+
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                data = input.getText().toString();
+                                //Log.d("cali",data);
+                                String resultUrl = ip+"/broadcast";
+                                new MainActivity.PostData().execute(resultUrl);
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+                        builder.show();
+
+                        break;
+
+
+                default:
+                    Intent intent = new Intent(MainActivity.this, newSession.class);
+                    startActivity(intent);
+
+            }
 
             }
         });
@@ -103,23 +153,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if(id == R.id.myprofile){
+            Intent intent=new Intent(MainActivity.this,UserProfile.class);
+            startActivity(intent);
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -194,5 +240,74 @@ public class MainActivity extends AppCompatActivity {
             return 3;
         }
     }
+
+
+    public class PostData extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            try{
+                return postData(params[0]);
+            }catch (IOException e) {
+                return "Network Error";
+            }catch (JSONException e) {
+                return "Data Invalid";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+        }
+
+
+        public String postData(String urlpath) throws IOException,JSONException {
+
+            SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            String id = sharedPref.getString("userid","");
+
+            JSONObject datatosend=new JSONObject();
+            datatosend.put("sender",id);
+            datatosend.put("body",data);
+
+            Log.d("cal",datatosend.toString());
+
+            StringBuilder result=new StringBuilder();
+
+            Log.d("lols",datatosend.toString());
+            URL url = new URL(urlpath);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setReadTimeout(10000);
+            urlConnection.setConnectTimeout(10000);
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setDoOutput(true);
+            urlConnection.setRequestProperty("Content-Type","application/json");
+            urlConnection.connect();
+
+            OutputStream outputStream=urlConnection.getOutputStream();
+            BufferedWriter bufferedWriter=new BufferedWriter(new OutputStreamWriter((outputStream)));
+            bufferedWriter.write(datatosend.toString());
+            bufferedWriter.flush();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            BufferedReader bufferedReader= new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            line = bufferedReader.readLine();
+            result.append(line);
+            Log.d("kyle",result.toString());
+            return result.toString();
+        }
+    }
+
+
+
+
 }
+
 

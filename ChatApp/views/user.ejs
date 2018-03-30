@@ -1,0 +1,77 @@
+<%- include('includes/header') %>
+<%- include('includes/navbar') %>
+
+<style>
+.user-profile-picture {
+  margin: 30px auto;
+}
+.profile-image {
+  width: 110px;
+  height: 110px;
+  border-radius: 110px;
+  border: 3px solid #ddd;
+  background: white;
+  box-shadow: 0 0 10px #ccc;
+}
+.profile-image > i {
+  margin-left: 12.5px;
+  margin-top: 6px;
+}
+hr {
+  position: absolute;
+  width: 600px;
+  left: 300px;
+  top: 120px;
+  z-index: -1;
+}
+</style>
+
+<div class='container'>
+  <div class='row'>
+    <div class='user-profile-picture'>
+      <hr>
+      <div class='profile-image'>
+        <i class='fa fa-5x fa-user text-muted'></i>
+      </div>
+    </div>
+  </div>
+  <div class='dept-name col-md-12 bg-white'>
+    <p class='text-center'>Department of <%= user.departmentDetails.name %></p>
+  </div>
+
+  <table class='table'>
+    <thead>
+      <tr>
+        <th> Header </th>
+        <th> Exployee Details </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td> <strong>Name</strong> </td>
+        <td><%= user.name %></td>
+      </tr>
+      <tr>
+        <td><strong>Designation</strong></td>
+        <td><%= user.designation %></td>
+      </tr>
+      <tr>
+        <td><strong> Employee ID</strong></td>
+        <td><%= user.empid %></td>
+      </tr>
+      <tr>
+        <td><strong> Mobile Number </strong></td>
+        <td><%= user.mobile_no %></td>
+      </tr>
+      <tr>
+        <td><strong>Location</strong></td>
+        <td><%= user.location %></td>
+      </tr>
+      <tr>
+        <td><strong>Aadhar</strong></td>
+        <td><%= user.aadhar %></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+

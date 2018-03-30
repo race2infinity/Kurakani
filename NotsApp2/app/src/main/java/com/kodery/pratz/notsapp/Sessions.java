@@ -81,7 +81,7 @@ public class Sessions extends Fragment {
     //public static String id= Pref.getString("userid", null);
     //public static String id= "4234";
    public static String id="";
-    public static String ip="http://192.168.0.8:3020";
+    public static String ip=MainActivity.ip;
 
     public RecyclerView mSessionRecycler;
     public SessionAdapter mSessionAdapter;

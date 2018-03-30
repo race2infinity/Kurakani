@@ -1,0 +1,24 @@
+<%- include('includes/depheader') %>
+<div class="table-responsive"></div>
+<h2>Departments</h2>
+<table class="department table table-striped table-sm">
+	<thead>
+		<tr>
+			<th>ID</th>	
+			<th>Department Name</th>
+			<th>Location</th>
+			<th>Admin ID</th>
+		</tr>
+	</thead>
+	<tbody>
+	<% department.forEach(function(department){%>
+		<tr>
+			<td><span><%= department.id %></span></td>
+			<td><span><%= department.name %></span></td>
+			<td><span><%= department.location %></span></td>
+			<td><span><%= department.admin %></span></td>
+		</tr>
+	<% }); %>
+	</tbody>
+</table>
+<%- include('includes/deptfooter') %>

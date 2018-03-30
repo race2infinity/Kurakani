@@ -368,6 +368,7 @@ public class Events extends Fragment {
                     String name = jObj.getString("name");
                     String id=jObj.getString("_id");
                     String adminid=jObj.getString("admin");
+                    String adminname=jObj.getString("admin_name");
                     String date=jObj.getString("created_at");
                     String temp=date;
                     if(temp.contains("T")){
@@ -376,6 +377,9 @@ public class Events extends Fragment {
                     Log.d("print1",name+" "+id+" "+date);
                     String resultURL = ip+"/userdata/"+adminid;
                     new RestOperation2().execute(resultURL);
+
+                    //TimeUnit.SECONDS.sleep(3);
+
                     /*
                     if(lstnames.get(id)==null && flag==1)
                     {
@@ -474,14 +478,7 @@ public class Events extends Fragment {
 
 }
 
-// NEXT CLASS
-//
-//
-//
-//
-//
-//
-//
+
 class fillerInvites extends BaseAdapter {
 
     Context context;

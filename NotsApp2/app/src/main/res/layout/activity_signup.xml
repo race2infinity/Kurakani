@@ -55,7 +55,7 @@
                 android:id="@+id/input_signup_userid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="User ID"
+                android:hint="Employee ID"
                 android:inputType="number"
                 android:textColor="@color/white" />
         </android.support.design.widget.TextInputLayout>
@@ -224,7 +224,10 @@
             android:layout_marginBottom="24dp"
             android:text="Already a member? Login"
             android:gravity="center"
-            android:textSize="16dip"/>
+            android:textSize="16dip"
+            android:textColor="@color/white"/>
 
     </LinearLayout>
+
+
 </ScrollView>
