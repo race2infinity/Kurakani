@@ -19,6 +19,7 @@ var conString = "mongodb://localhost:27017/mylearning";
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var server = require('./server');
+var fs = require('fs');
 
 var User = require('./models/user');
 var Department = require('./models/department');
@@ -645,10 +646,29 @@ app.post("/deletesession/",(req,res)=>{
         console.error(err);
       }
     }
-  })
+  });
+});
 
-})
+app.get("/export/:session_id", (req, res) => {
+  return Messages.find({ sess_id: req.params.session_id }, '-_id -__v').exec()
+    .then(function (docs) {
+      const filename = `messages${Date.now()}.csv`;
+      Messages.csvReadStream(docs)
+        .pipe(fs.createWriteStream(filename))
+        .on('close', () => {
+          const filePath = path.join(__dirname, filename);
+          const stat = fs.statSync(filePath);
 
+          res.writeHead(200, {
+            'Content-Type': 'text/csv',
+            'Content-Length': stat.size
+          });
+
+          const readStream = fs.createReadStream(filePath);
+          readStream.pipe(res);
+        });
+    });
+});
 //Define routes
 app.use('/', routes);
 app.use('/users', users);

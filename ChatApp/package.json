@@ -29,6 +29,7 @@
     "mongoose": "^4.13.12",
     "mongoose-auto-increment": "^5.0.1",
     "mongoose-sequence": "^4.0.1",
+    "mongoose-to-csv": "^0.1.1",
     "nodemon": "^1.17.2",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
