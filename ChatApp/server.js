@@ -11,6 +11,7 @@ var session = require('express-session');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var flash = require('connect-flash');
+var fs = require('fs');
 // var Department = require('../models/department')
 var conString = "mongodb://localhost:27017/mylearning";
 //var conString = "mongodb://localhost:27017/mylearning";
@@ -37,8 +38,8 @@ app.use(express.static(path.join(__dirname,'public')));
 app.use('/css', express.static(__dirname+ '/node_modules/bootstrap/dist/css'));
 
 //Body-parser Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 //Express session Middleware
 app.use(session({
@@ -539,9 +540,6 @@ app.post("/sessions/yes",(req,res)=>
   res.sendStatus(200)
 })
 
-
-
-
 //accepting an event
 app.post("/events/yes",(req,res)=>
 {
@@ -648,6 +646,16 @@ app.post("/deletesession/",(req,res)=>{
     }
   });
 });
+
+// getting a file and emitting it
+app.post("/fileshare", (req, res) => {
+  fs.writeFile(req.body.fileName, req.body.data, 'base64', function(err, data){
+    if (err) 
+      console.log(err)
+    else
+      console.log('Success')
+  })
+})
 
 app.get("/export/:session_id", (req, res) => {
   return Messages.find({ sess_id: req.params.session_id }, '-_id -__v').exec()
