@@ -1,0 +1,58 @@
+<%- include('includes/header') %>
+<%- include('includes/navbar') %>
+<style>
+.user-box {
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px #ddd;
+  margin-top: 15px;
+  margin-left: 15px;
+  padding-top: 7.5px;
+  padding-bottom: 7.5px;
+}
+.verification-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.verification-status > p {
+  margin: 0;
+}
+</style>
+<div class="container user-ist">
+  <div class='col-md-12'>
+    <div class='row'>
+      <% if (locals.errors) { %>
+          <% errors.forEach(function(error){ %>
+              <div class="alert alert-danger"><%= error.msg %></div>
+          <% }) %>
+      <% } %>
+      <%- messages() %>
+
+      <% users.forEach(function (user) { %>
+        <div class='col-md-3 user-box'>
+          <p class='text-center'><%= user.name %></p>
+          <p class='text-center'><%= user.empid %></p>
+          <p class='text-center'><%= user.emailid %></p>
+          <div class='verification-status'>
+            <a class='btn btn-sm btn-dark' href=<%= `/userdata/${user._id}` %>>
+              <i class='fa fa-user fa-xs'></i>
+              View
+            </a>
+            <% if (user.verified) { %>
+              <p class='text-center'>
+                <i class='fa fa-check-circle fa-sm text-success'></i>
+                Verified
+              </p>
+            <% } else { %>
+              <form method="post" action=<%= `/userdata/${user._id}/verify` %>>
+                  <button class='btn btn-default btn-sm' type='submit'>Verify</button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+<%- include('includes/footer') %>

@@ -238,7 +238,16 @@ app.post("/userdata/",async(req,res)=>{
     res.sendStatus(500)
     console.error(error)
   }
-})
+});
+
+app.post('/userdata/:id/verify', (req, res) => {
+  return User.findByIdAndUpdate(req.params.id, { verified: true }, (err, user) => {
+    if (err) {
+      return res.status(500).send({ message: 'Something went wrong' });
+    }
+    res.status(200).redirect(`/depdata/${user.department}`);
+  });
+});
 
 //logging in to the application
 app.post("/login/app", (req,res)=>{
@@ -271,27 +280,37 @@ app.post("/login/app", (req,res)=>{
 app.get("/userdata/:id/", (req, res) => {
     var id = req.params.id
     User.findOne({empid:id},'-password1 -password2 -aadhar', (error, user) => {
-        res.send(user)
-        console.log("Users Accesed")
-    })
+      if (error) {
+        return res.status(500).send({ message: 'Something went wrong' });
+      }
+      console.log("Users Accesed")
+      return res.send(user)
+    });
 })
 
 //fetching data of departments
 app.get("/depdata",(req,res)=>{
-    Department.find({},(error,dep)=>{
-      res.send(dep)
-      console.log("Departments Accessed")
-    })
-})
+  console.log(req.headers);
+  Department.find({}, (error,dep) => {
+    res.send(dep)
+    console.log("Departments Accessed")
+  });
+});
 
 //fetching employees from a department
 app.get("/depdata/:id",(req,res)=>{
-  var id=req.params.id
-  User.find({department:id},(error,user)=>{
-      res.send(user)
-      console.log("Department User Accessed")
-  })
-})
+  var id=req.params.id;
+  User.find({department:id},(error,users)=>{
+    if (error) {
+      return res.status(500).send({ message: 'Somthing went wrong' });
+    }
+    if (req.headers.accept.indexOf('text/html') > -1) {
+      return res.render('users', { users: users });
+    } else {
+      return res.send(users);
+    }
+  });
+});
 
 //Creating a department
 app.post("/depdata/",async(req,res)=>{

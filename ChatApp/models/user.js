@@ -11,5 +11,6 @@ module.exports = mongoose.model("User",{
   aadhar: String,
   designation: String,
   password1:String,
-  password2:String
+  password2:String,
+  verified: { type: Boolean, default: false }
 });
