@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -87,9 +88,11 @@ public class Chatroom extends AppCompatActivity {
         //stringbox=(TextView)findViewById(R.id.textView2);
 
         Toolbar toolbar=(Toolbar)findViewById(R.id.toolbar6);
+        //ActionBar actionbar=getSupportActionBar();
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(valuename);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -125,6 +128,7 @@ public class Chatroom extends AppCompatActivity {
             public void onClick(View view) {
                 EditText txt = (EditText) findViewById(R.id.edittext_chatbox);
                 text = txt.getText().toString();
+                txt.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                 txt.setText("");
                 if(!text.equals("")) {
                     String resultURL = ip+"/messages/";

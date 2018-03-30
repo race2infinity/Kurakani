@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -76,11 +77,11 @@ public class newSession extends AppCompatActivity {
         snewSession = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_session);
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-        //ActionBar actionbar = getSupportActionBar();
-        //actionbar.setDisplayHomeAsUpEnabled(true);
-        //actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar4);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
         //When the Button is pressed POST request to database has to be sent
         FloatingActionButton butnext=(FloatingActionButton)findViewById(R.id.butnext2);
@@ -121,7 +122,7 @@ public class newSession extends AppCompatActivity {
 
 
             }
-        });;
+        });
 
         String resultURL = ip+"/depdata";
         new RestOperation().execute(resultURL);
@@ -129,6 +130,8 @@ public class newSession extends AppCompatActivity {
         //Code for SIDE MENU
         mDrawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+
+        mDrawerLayout.openDrawer(Gravity.LEFT);
 
         // This is called every time someone clicks on the department
         navigationView.setNavigationItemSelectedListener(

@@ -15,6 +15,7 @@ import android.util.Log;
 
 import android.content.Intent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -41,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button _btnLogin;
     private TextView _linkSignup;
     public int flag;
+    public static String ip=Sessions.ip;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,6 +73,8 @@ public class LoginActivity extends AppCompatActivity {
 
         _btnLogin = findViewById(R.id.btn_login);
         _linkSignup = findViewById(R.id.link_signup);
+
+        _linkSignup.setText(Html.fromHtml("No account yet? <u>Create one</u>"));
 
         _inputUseridText.addTextChangedListener(new LoginActivity.MyTextWatcher(_inputUseridText));
         _inputPasswordText.addTextChangedListener(new LoginActivity.MyTextWatcher(_inputPasswordText));
@@ -116,7 +120,8 @@ public class LoginActivity extends AppCompatActivity {
         //boolean check = sharedPref.getBoolean("abcd",false);
         //Log.d("hello", String.valueOf(check));
 
-        String resultUrl = "http://192.168.0.8:3020/login/app";
+        String resultUrl = ip+"/login/app";
+        new PostData().execute(resultUrl);
         new PostData().execute(resultUrl);
         if(flag==1) {
             editor.putBoolean("abcd", true);
@@ -168,12 +173,9 @@ public class LoginActivity extends AppCompatActivity {
     public boolean validate() {
         boolean valid = true;
 
-        /*String login_userid = _inputUseridText.getText().toString();
-        String login_password = _inputPasswordText.getText().toString();*/
-
         if (_inputUseridText.getText().toString().trim().isEmpty()) {
             _inputLayoutUseridText.setError("Invalid User ID.");
-            //requestFocus(_inputUseridText);
+            requestFocus(_inputUseridText);
             valid = false;
         } else {
             _inputLayoutUseridText.setError(null);
@@ -181,13 +183,19 @@ public class LoginActivity extends AppCompatActivity {
 
         if (_inputPasswordText.getText().toString().trim().isEmpty()) {
             _inputLayoutPasswordText.setError("Invalid password.");
-            //requestFocus(_inputPasswordText);
+            requestFocus(_inputPasswordText);
             valid = false;
         } else {
             _inputLayoutPasswordText.setError(null);
         }
 
         return valid;
+    }
+
+    private void requestFocus(View view) {
+        if (view.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
     }
 
     private class MyTextWatcher implements TextWatcher {
@@ -206,6 +214,29 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         public void afterTextChanged(Editable editable) {
+            String userid = _inputUseridText.getText().toString();
+            String password = _inputPasswordText.getText().toString();
+            switch (view.getId()) {
+                case R.id.input_login_userid: {
+                    if (userid.trim().isEmpty()) {
+                        _inputLayoutUseridText.setError("Enter a valid User Id");
+                        requestFocus(_inputUseridText);
+                    } else {
+                        _inputLayoutUseridText.setError(null);
+                    }
+                    break;
+                }
+
+                case R.id.input_login_password: {
+                    if (password.trim().length() < 8) {
+                        _inputLayoutPasswordText.setError("Enter a valid password");
+                        requestFocus(_inputLayoutPasswordText);
+                    } else {
+                        _inputLayoutPasswordText.setError(null);
+                    }
+                    break;
+                }
+            }
         }
     }
 
