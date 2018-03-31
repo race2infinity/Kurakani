@@ -370,7 +370,7 @@ app.get("/depdata", (req, res) => {
 //fetching employees from a department
 app.get("/depdata/:id", (req, res) => {
   var id = req.params.id;
-  return User.find({ department: id }, '-password1 -password2 -aadhar', (error, users) => {
+  return User.find({ department: id }, '-salt -hashedPassword -aadhar', (error, users) => {
     if (error) {
       return res.status(500).send({ message: "Something went wrong" });
     }

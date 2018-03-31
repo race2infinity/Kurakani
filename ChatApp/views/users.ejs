@@ -29,7 +29,10 @@
       <% } %>
       <%- messages() %>
 
+      <%= console.log(users) %>
+
       <% users.forEach(function (user) { %>
+      <%= console.log(user) %>
         <div class='col-md-3 user-box'>
           <p class='text-center'><%= user.name %></p>
           <p class='text-center'><%= user.empid %></p>
