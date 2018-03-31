@@ -10,10 +10,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -69,9 +72,16 @@ public class AddUser extends AppCompatActivity {
         snewSession = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_session);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar4);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
         Intent myintent=getIntent();
         sesid=myintent.getStringExtra("sesid");
+
+
 
         //When the Button is pressed POST request to database has to be sent
         FloatingActionButton butnext=(FloatingActionButton)findViewById(R.id.butnext2);
@@ -94,6 +104,8 @@ public class AddUser extends AppCompatActivity {
         //Code for SIDE MENU
         mDrawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+
+        mDrawerLayout.openDrawer(Gravity.LEFT);
 
         // This is called every time someone clicks on the department
         navigationView.setNavigationItemSelectedListener(
@@ -397,19 +409,19 @@ public class AddUser extends AppCompatActivity {
             String id1 = sharedPref.getString("userid","");
 
             JSONObject datatosend=new JSONObject();
-            JSONArray temp=new JSONArray();
+            //JSONArray temp=new JSONArray();
             JSONArray mem=new JSONArray();
-            datatosend.put("id",finallist.get(0));
+            //datatosend.put("id",finallist.get(0));
             //datatosend.put("admin",id);
-            mem.put(id1);
+            //mem.put(id1);
             datatosend.put("sid",sesid);
             for(int i=0;i<finallist.size();i++){
                 try {
-                    temp.put(finallist.get(i));
+                    mem.put(finallist.get(i));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-               // datatosend.put("invited",temp);
+                datatosend.put("id",mem);
             }
 
             Log.d("cal",datatosend.toString());

@@ -290,7 +290,7 @@ public class LoginActivity extends AppCompatActivity {
             String line;
             line = bufferedReader.readLine();
             result.append(line);
-            //Log.d("kyle",result.toString());
+            Log.d("kyle",result.toString());
             String temp=result.toString();
             if(temp.equals("OK"))
                 flag=1;

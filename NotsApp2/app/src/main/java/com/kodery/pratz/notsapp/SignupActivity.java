@@ -143,7 +143,9 @@ public class SignupActivity extends AppCompatActivity {
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, arraySpinner);
         si.setAdapter(adapter);
-        Toast.makeText(this, Integer.toString(si.getSelectedItemPosition()), Toast.LENGTH_LONG).show();
+        if(si.getSelectedItemPosition()==-1){
+            Toast.makeText(this,"Network Error", Toast.LENGTH_SHORT).show();
+        }
         // Toast.makeText(this, si.getSelectedItem().toString(), Toast.LENGTH_LONG).show();
 
 
@@ -213,8 +215,8 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     public void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Signup failed", Toast.LENGTH_LONG).show();
-        flag=1;
+        Toast.makeText(getBaseContext(), "Signup failed", Toast.LENGTH_SHORT).show();
+        flag=0;
         _btnSignUp.setEnabled(true);
     }
 

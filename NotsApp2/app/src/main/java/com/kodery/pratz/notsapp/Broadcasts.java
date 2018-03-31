@@ -154,10 +154,14 @@ public class Broadcasts extends Fragment {
         mSessionRecycler = (RecyclerView) getActivity().findViewById(R.id.broadlist);
         mSessionAdapter = new BroadcastAdapter(getContext(), broadlist);
         LinearLayoutManager llm = new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false);
+        //llm.setStackFromEnd(true);
+        llm.setReverseLayout(true);
         mSessionRecycler.setLayoutManager(llm);
         mSessionRecycler.getLayoutManager().setMeasurementCacheEnabled(false);
         mSessionRecycler.setHasFixedSize(true);
         mSessionRecycler.setAdapter(mSessionAdapter);
+        mSessionRecycler.scrollToPosition(broadlist.size()-1);
+
 
     }
 
@@ -213,8 +217,11 @@ public class Broadcasts extends Fragment {
                     Broad broad=new Broad(bname,sname,time,dep,des);
                     broadlist.add(broad);
                     Log.d("lulz",broad.print());
+
+
                 }
                 mSessionAdapter.notifyDataSetChanged();
+                mSessionRecycler.scrollToPosition(broadlist.size()-1);
             }
 
             catch (Exception ex){

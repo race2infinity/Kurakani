@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/sendImage"
+        android:orderInCategory="100"
+        android:title="Send Images"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/sendDocument"
+        android:orderInCategory="100"
+        android:title="Send Document"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/export"
+        android:orderInCategory="100"
+        android:title="Export Chat"
+        app:showAsAction="never" />
+
+</menu>

@@ -80,7 +80,7 @@ public class Sessions extends Fragment {
     //SharedPreferences.Editor editor = sharedPref.edit();
     //public static String id= Pref.getString("userid", null);
     //public static String id= "4234";
-   public static String id="";
+    public static String id="";
     public static String ip=MainActivity.ip;
 
     public RecyclerView mSessionRecycler;
@@ -219,7 +219,7 @@ public class Sessions extends Fragment {
         SharedPreferences.Editor editor = sharedPref.edit();
         id = sharedPref.getString("userid","");
 
-        Session temp=(Session)new Session("name","5ab732b6a173133b1a6c481a","9:00pm");
+        Session temp=(Session)new Session(" "," "," ");
         sessionList.add(temp);
 
 

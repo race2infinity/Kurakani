@@ -173,24 +173,6 @@
         </android.support.constraint.ConstraintLayout>
 
         <android.support.design.widget.TextInputLayout
-            android:id="@+id/input_layout_signup_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp"
-            android:theme="@style/TextLabel"
-            app:errorEnabled="true">
-
-            <EditText
-                android:id="@+id/input_signup_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Location"
-                android:inputType="text"
-                android:textColor="@color/white" />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_signup_designation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

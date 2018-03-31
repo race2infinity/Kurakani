@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -80,7 +81,7 @@ public class UserProfile extends AppCompatActivity {
         _inputDesignation = findViewById(R.id.textview_designation);
 
         _locationMain = findViewById(R.id.input_location_main);
-        _location = findViewById(R.id.textview_location);
+        _location = findViewById(R.id.textview_location_input);
 
         _floatButton = findViewById(R.id.floatingActionButton);
 
@@ -154,7 +155,7 @@ public class UserProfile extends AppCompatActivity {
             }
 
             catch (Exception ex){
-                Log.d("Error in UserProfile", ex.toString());
+                Log.d("myapp", Log.getStackTraceString(ex));
             }
 
         }

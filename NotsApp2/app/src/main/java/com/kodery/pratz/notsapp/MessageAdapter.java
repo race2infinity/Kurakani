@@ -2,6 +2,7 @@ package com.kodery.pratz.notsapp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,11 +23,13 @@ class Message {
     String text;
     User sender;
     String time;
+    Bitmap image;
 
-    public Message(String text, User sender, String time) {
+    public Message(String text, User sender, String time,Bitmap image) {
         this.text = text;
         this.sender = sender;
         this.time = time;
+        this.image=image;
     }
 
     public String getText() {
@@ -40,6 +43,8 @@ class Message {
     public String getTime() {
         return time;
     }
+
+    public Bitmap getImage(){return image;}
 }
 
 class User {
@@ -93,16 +98,21 @@ public class MessageAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
 
-
         Message message = (Message) mMessageList.get(position);
-        //Log.d("KALDON GONNA KILL ME", message.getUser().getURL());
-        if(message.getUser().getURL().equals(id)) {
-            // If the current user is the sender of the message
-            return 1;
+       // Log.d("kklol",message.getImage().toString());
+        if(message.getImage()==null && message.getUser()!=null)
+        {
+            if(message.getUser().getURL().equals(id)) {
+                // If the current user is the sender of the message
+                return 1;
+            }
+            else {
+                // If some other user sent the message*/
+                return 2;
+            }
         }
-        else {
-            // If some other user sent the message*/
-            return 2;
+        else{
+            return 3;
         }
     }
 
@@ -114,8 +124,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
             case 1:
                 return new SentMessageHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.message_sent, parent, false));
 
-            default:
+            case 2:
                 return new ReceivedMessageHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.message_received, parent, false));
+
+            default:
+                return new ImageHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.image_sent, parent, false));
+
         }
         //Log.d(TAG, "onCreateViewHolder: ENTERED");
     }
@@ -126,11 +140,15 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
         switch(holder.getItemViewType())
         {
+
             case 1:
                 ((SentMessageHolder) holder).bind(message);
                 break;
-            default:
+            case 2:
                 ((ReceivedMessageHolder) holder).bind(message);
+                break;
+            case 3:
+                ((ImageHolder) holder).bind(message);
         }
     }
 
@@ -173,20 +191,33 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     private class SentMessageHolder extends RecyclerView.ViewHolder {
         TextView messageText, timeText;
+        ImageView imageView;
 
         SentMessageHolder(View itemView) {
             super(itemView);
 
             messageText = (TextView) itemView.findViewById(R.id.text_message_body);
             timeText = (TextView) itemView.findViewById(R.id.text_message_time);
+            imageView=(ImageView) itemView.findViewById(R.id.imageView4);
         }
 
         void bind(Message message) {
             messageText.setText(message.getText());
+            timeText.setText(message.getTime());}
 
-            // Format the stored timestamp into a readable String using method.
-            timeText.setText(message.getTime());
-        }
     }
 
+    private class ImageHolder extends RecyclerView.ViewHolder {
+        ImageView imageView;
+
+        ImageHolder(View itemView) {
+            super(itemView);
+            imageView=(ImageView) itemView.findViewById(R.id.imageView4);
+        }
+
+        void bind(Message message) {
+
+                imageView.setImageBitmap(message.getImage());
+        }
+    }
 }

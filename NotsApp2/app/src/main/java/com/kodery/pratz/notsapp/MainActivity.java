@@ -55,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static String data;
 
-    public static String ip="http://192.168.43.150:3020";
-
+    public static String ip="http://18.219.228.112";
+    //http://18.219.228.112   192.168.0.11:3020
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
