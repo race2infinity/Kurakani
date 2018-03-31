@@ -341,7 +341,7 @@ app.get("/userdata/:id/", (req, res) => {
       }
       console.log("Users Accesed")
       if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
-        return Department.findById(user.department, 'name', (err, dep) => {
+        return Department.findOne({ id: user.department}, 'name', (err, dep) => {
           user.departmentDetails = { name: dep.name };
           return res.render('user', { user: user });
         });
