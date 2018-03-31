@@ -12,6 +12,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var flash = require('connect-flash');
 var fs = require('fs');
+var crypto = require('crypto');
 // var Department = require('../models/department')
 var conString = "mongodb://localhost:27017/mylearning";
 //var conString = "mongodb://localhost:27017/mylearning";
@@ -242,52 +243,54 @@ app.post("/broadcast", async (req, res) => {
     }
 })
 
+function encryptPassword (password, salt) {
+  console.log(password, salt)
+  if (!password || !salt) return ''
+  var saltgen = new Buffer(salt, 'base64')
+  return crypto.pbkdf2Sync(password, saltgen, 10000, 64, 'sha512').toString('base64')
+}
+
+function makeSalt() {
+  return crypto.randomBytes(16).toString('base64')
+} 
+
 //registering a new user
 app.post("/userdata/",async(req,res)=>{
   try{
-    var user = new User(req.body)
-    User.findOne({empid:user.empid},async(err,user1)=>{
+    var data = req.body
+    data.salt =  makeSalt()
+    console.log(data.password1);
+    data.hashedPassword = encryptPassword(data.password1, data.salt)
+    delete data.password1
+    // var user = new User(data)
+    User.findOne({empid: data.empid}, (err,user)=>{
       if(err){
         return err
       }
-      if(!user1){
-        if(user.password1==user.password2){
-          Department.findOne({id:user.department},(err,depart)=>{
-            if(err){
-              return err
-            }
-            else {
-                user.dname=depart.name
-                user.markModified('dname')
-                user.save()
-            }
-          })
-        await user.save()
-        console.log("User Created")
-        Department.findOne({id:user.department},(err,dep)=>{
-        	Session.findByIdAndUpdate(
-			dep.sid,
-			{ $push: { members: user.empid } },
-
-			() => console.log('User added')
-		  );
-        })
-        res.sendStatus(200)
-        //Emit the event
-        io.emit("usercreated",req.body)
-        }
-        else{
-          res.status(500).send({code:'PDM',message:'Password Doesnt Match'})
-        }
-      }
-      else{
-        res.status(500).send({code:'AAE',message:'Account Already Exists'})
+      if(!user){
+        user = new User(data);
+        Department.findOne({id: data.department}, (err, depart) => {
+          if (err) 
+            return err
+          else {
+            user.dname = depart.name
+            user.save();
+            console.log("User Created");
+            Session.findByIdAndUpdate(depart.sid, {$push: {members: user.empid}}, (err, sess) => {
+              if (err) return err   
+            })
+            res.sendStatus(200);
+            // Emit the event
+            io.emit("usercreated", req.body);
+          }
+        });
+      } else {
+        res.status(500).send({code:'AAE',message:'Account already exists'})
       }
     })
-
-  }catch(error){
-    res.sendStatus(500)
-    console.error(error)
+  } catch(error) {
+    res.sendStatus(400)
+    console.error(error);
   }
 });
 
@@ -315,7 +318,8 @@ app.post("/login/app", (req,res)=>{
     }
     else {
       console.log(pass)
-      if(pass==user.password1){
+      var tempHash = encryptPassword(pass, user.salt)
+      if(tempHash==user.hashedPassword){
         res.sendStatus(200)
         console.log("Right password")
       }
@@ -330,7 +334,7 @@ app.post("/login/app", (req,res)=>{
 //fetching data of user from id
 app.get("/userdata/:id/", (req, res) => {
     var id = req.params.id
-    User.findOne({empid:id},'-password1 -password2 -aadhar', (error, user) => {
+    User.findOne({empid:id},'-hashedPassword -salt -aadhar', (error, user) => {
       if (error) {
         return res.status(500).send({ message: 'Something went wrong' });
       }

@@ -17,7 +17,7 @@ module.exports = mongoose.model("User",{
   dname:String,
   aadhar: String,
   designation: String,
-  password1:String,
-  password2:String,
+  hashedPassword:String,
+  salt:String,
   verified: { type: Boolean, default: false }
 });
