@@ -764,6 +764,10 @@ app.get("/export/:session_id", (req, res) => {
         });
     });
 });
+
+app.get('/videochat/:room_name', (req, res) => {
+  return res.render('videortc', { room_name: req.params.room_name });
+});
 //Define routes
 app.use('/', routes);
 app.use('/users', users);
