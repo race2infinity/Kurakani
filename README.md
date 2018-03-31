@@ -50,7 +50,7 @@ Your admin app should now be running on [localhost:3020](http://localhost:3020/)
 3. Create broadcasts, view your profile, etc.
 
 
-### How it works 
+### How it works<a name="howitworks"></a>
 1. Uses socket.io for real-time and seamless transmission of texts and files.
 2. Uses AES Encryption for messages.
 3. Uses SHA512 Hashing techniques for passwords to render anyone unable to ever figure it out.
