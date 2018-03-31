@@ -11,9 +11,24 @@ var session = require('express-session');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var flash = require('connect-flash');
-var fs = require('fs');
-var crypto = require('crypto');
-// var Department = require('../models/department')
+var crypto = require('crypto'),
+    algorithm = 'aes-256-ctr',
+    password = 'd6F3Efeq';
+
+function encrypt(text){
+  var cipher = crypto.createCipher(algorithm,password)
+  var crypted = cipher.update(text,'utf8','hex')
+  crypted += cipher.final('hex');
+  return crypted;
+}
+
+function decrypt(text){
+  var decipher = crypto.createDecipher(algorithm,password)
+  var dec = decipher.update(text,'hex','utf8')
+  dec += decipher.final('utf8');
+  return dec;
+}
+// var Department = require('../models/depar'ment')
 var conString = "mongodb://localhost:27017/mylearning";
 //var conString = "mongodb://localhost:27017/mylearning";
 //app.use(express.static(__dirname))
@@ -97,25 +112,37 @@ mongoose.connect(conString, { useMongoClient: true }, (err) => {
 app.post("/messages", async (req, res) => {
     try {
         var name,des,dep;
-        var message = new Messages(req.body);
+        var x = req.body;
+        x.body=encrypt(x.body)
+        var message = new Messages();
+        message.sender = x.sender;
+        message.body = x.body;
+        message.sess_id=x.sess_id;
+        console.log(message.body);
         var d = new Date();
         var mum_offset = 5.5*60;
         d.setMinutes(d.getMinutes() + mum_offset);
         message.created_at=d;
+        x.created_at=d;
         //message.send_name="Chaitanya";
         //console.log(message.sender)
         User.findOne({empid:message.sender},(err,user)=>{
            message.send_name =user.name;
+           x.send_name=user.name;
           //console.log(message.send_name)
            message.send_des =user.designation;
+           x.send_des =user.designation;
           // console.log(message.send_des)
           Department.findOne({id:user.department},(err,dep)=>{
              message.send_dep =dep.name;
+             x.send_dep =dep.name;
              //console.log("1"+message.send_dep)
              var me = new Messages(message);
              me.save();
              console.log(me);
-             io.emit("chat",me);
+             x.body=decrypt(x.body);
+             console.log(x)
+             io.emit("chat",x);
           })
         })
         //  console.log(message)
@@ -131,48 +158,22 @@ app.post("/messages", async (req, res) => {
         //console.log(message)
         res.sendStatus(200);
           //Emit the event
-          io.emit("refresh");
+          //io.emit("refresh");
     } catch (error) {
         res.sendStatus(500);
         console.error(error);
     }
 })
 
-app.post("/file",(req,res)=>
-{
-    var uploader = new SocketIOFile(socket,{
-      uploadDir:'../',
-      maxFileSize:5242880,
-      chunkSize:51200,
-      accepts:['image/jpeg', 'image/png'],
-      transmissionDelay:0,
-      overwrite:true
-    });
-    uploader.on('start',(fileInfo)=>{
-        console.log('Start uploading');
-        console.log(fileInfo);
-    });
-    uploader.on('stream', (fileInfo) => {
-        console.log(`${fileInfo.wrote} / ${fileInfo.size} byte(s)`);
-    });
-    uploader.on('complete', (fileInfo) => {
-        console.log('Upload Complete.');
-        console.log(fileInfo);
-    });
-    uploader.on('error', (err) => {
-        console.log('Error!', err);
-    });
-    uploader.on('abort', (fileInfo) => {
-        console.log('Aborted: ', fileInfo);
-    });
-
-});
 
 //fetching messages from the database
 //Changes
 app.get("/messages/:seid", (req, res) => {
     var sid=req.params.seid;
     Messages.find({sess_id:sid}, (error, chats) => {
+      chats.forEach(function(mes){
+        mes.body=decrypt(mes.body)
+      })
         res.send(chats)
         console.log("Chats Accessed");
     });
@@ -510,7 +511,7 @@ app.post("/search",(req,res)=>{
     Messages.find({_id:sid,body:{$regex:msg}},(err,message)=>{
       res.send(message);
     })
-    res.sendStatus(200);
+    //res.sendStatus(200);
     //console.error(error);
 })
 
