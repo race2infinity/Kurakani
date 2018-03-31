@@ -501,11 +501,6 @@ app.get("/sessions/:sid", (req, res) => {
       });
     console.log("Sessions Data Accessed");
   });
-  if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
-    res.render('users',);
-  } else {
-    res.send();
-  }
 })
 
 //Searching a message
