@@ -252,7 +252,7 @@ function encryptPassword (password, salt) {
 
 function makeSalt() {
   return crypto.randomBytes(16).toString('base64')
-} 
+}
 
 //registering a new user
 app.post("/userdata/",async(req,res)=>{
@@ -270,14 +270,14 @@ app.post("/userdata/",async(req,res)=>{
       if(!user){
         user = new User(data);
         Department.findOne({id: data.department}, (err, depart) => {
-          if (err) 
+          if (err)
             return err
           else {
             user.dname = depart.name
             user.save();
             console.log("User Created");
             Session.findByIdAndUpdate(depart.sid, {$push: {members: user.empid}}, (err, sess) => {
-              if (err) return err   
+              if (err) return err
             })
             res.sendStatus(200);
             // Emit the event
@@ -440,7 +440,6 @@ app.get("/findsessions/:id",(req,res)=>{
 
 //creating  a new Event
 app.post("/events",async(req,res)=>{
-  try{
     var event = new Events(req.body);
     var d = new Date()
     var mum_offset = 5.5*60;
@@ -457,10 +456,6 @@ app.post("/events",async(req,res)=>{
     res.sendStatus(200);
     //Emit the event
     //io.emit("sessioncreate",req.body);
-  }catch(error){
-      res.sendStatus(500);
-      console.error(error);
-  }
 })
 
 //declining a session
@@ -486,6 +481,7 @@ app.post("/events/no",(req,res)=>{
     { $pull: { invited: id } },
     () => console.log('User removed')
   );
+  res.sendStatus(200);
 })
 
 //session profile
@@ -543,6 +539,38 @@ app.post("/sessions/yes",(req,res)=>
     ()=>console.log('User profile updated')
   );
   res.sendStatus(200)
+})
+
+
+//find sessions the employee is invited to
+app.get("/eventinvites/:id",(req,res)=>{
+  var id=req.params.id
+  Events.find({invited:id},(error,event)=>{
+    res.send(event)
+    console.log("Event Invites Accessed")
+  })
+})
+
+
+app.get("/events/:empid",(req,res)=>{
+  var empid = req.params.empid;
+  console.log('empid:',empid)
+  var d= new Date()
+  var num_offset=5.5*60;
+  d.setMinutes(d.getMinutes()+num_offset);
+  console.log(d);
+  Events.where('members').in([empid]).where('ends_at').gt(d)
+  .exec((err, events) => {
+    console.log('something', events)
+    res.send(events)
+    // events.forEach((event) => {
+    //   event.remove();
+    // })
+  });
+  // Events.find({members:id}(error,session)=>{
+  //   res.send(session)
+  //   console.log("Event members Accesed")
+  // })
 })
 
 //accepting an event
@@ -657,11 +685,11 @@ app.post("/fileshare", (req, res) => {
   var js = new Files();
   //console.log(req.body)
   fs.writeFile(req.body.fileName, req.body.data, 'base64', function(err, data){
-    if (err) 
+    if (err)
       console.log(err)
     else{
       fs.readFile(req.body.fileName,(err,data1)=>{
-        if (err) 
+        if (err)
        console.log(err)
         else{
         js.sender = req.body.id
@@ -676,7 +704,7 @@ app.post("/fileshare", (req, res) => {
         console.log("Write Done")
       }
      })
-      io.emit("file",js)  
+      io.emit("file",js)
     }
   })
 })
@@ -688,7 +716,7 @@ app.post("/fileshare", (req, res) => {
   var writerStream = fs.createWriteStream(req.body.fileName)
     writerStream.write(req.body.data,'base64');
     writerStream.end();
-    
+
     writerStream.on('finish', function() {
       console.log("Write completed.");
    });
@@ -706,7 +734,7 @@ app.post("/fileshare", (req, res) => {
         js.created_at=d;
         js.save();
     })
-      io.emit("file",js)   
+      io.emit("file",js)
 })*/
 
 //fetching files from the dataset
