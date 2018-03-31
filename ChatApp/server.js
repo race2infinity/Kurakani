@@ -29,6 +29,7 @@ var Messages = require('./models/message');
 var Broadcast = require('./models/broadcast');
 
 var Events = require('./models/events');
+var Files= require('./models/file');
 //view engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -649,13 +650,72 @@ app.post("/deletesession/",(req,res)=>{
 
 // getting a file and emitting it
 app.post("/fileshare", (req, res) => {
+  var js = new Files();
+  //console.log(req.body)
   fs.writeFile(req.body.fileName, req.body.data, 'base64', function(err, data){
     if (err) 
       console.log(err)
-    else
-      console.log('Success')
+    else{
+      fs.readFile(req.body.fileName,(err,data1)=>{
+        if (err) 
+       console.log(err)
+        else{
+        js.sender = req.body.id
+        js.sess_id = req.body.sid
+        js.filename=req.body.fileName
+        js.data = data1
+        var d = new Date();
+        var mum_offset = 5.5*60;
+        d.setMinutes(d.getMinutes() + mum_offset);
+        js.created_at=d;
+        js.save();
+        console.log("Write Done")
+      }
+     })
+      io.emit("file",js)  
+    }
   })
 })
+
+/*
+app.post("/fileshare", (req, res) => {
+  var js = new Files();
+  //js.save();
+  var writerStream = fs.createWriteStream(req.body.fileName)
+    writerStream.write(req.body.data,'base64');
+    writerStream.end();
+    
+    writerStream.on('finish', function() {
+      console.log("Write completed.");
+   });
+   writerStream.on('error', function(err){
+    console.log(err.stack);
+  });
+    fs.readFile(req.body.fileName,(err,data1)=>{
+        //js.sender = req.body.id
+        //js.sess_id = req.body.sid
+        js.filename=req.body.fileName
+        js.data = data1
+        var d = new Date();
+        var mum_offset = 5.5*60;
+        d.setMinutes(d.getMinutes() + mum_offset);
+        js.created_at=d;
+        js.save();
+    })
+      io.emit("file",js)   
+})*/
+
+//fetching files from the dataset
+app.get("/fileshare/:seid", (req, res) => {
+    var sid=req.params.seid;
+    Files.find({sess_id:sid}, (error, data) => {
+        if(error)
+          console.log(error);
+        else{}
+        res.send(data);
+        console.log("Files Accessed");
+      });
+});
 
 app.get("/export/:session_id", (req, res) => {
   return Messages.find({ sess_id: req.params.session_id }, '-_id -__v').exec()
