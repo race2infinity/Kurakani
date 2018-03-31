@@ -222,6 +222,16 @@ public class Sessions extends Fragment {
         Session temp=(Session)new Session(" "," "," ");
         sessionList.add(temp);
 
+        TextView txt = (TextView) getView().findViewById(R.id.textView_i);
+        txt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent= new Intent(getActivity(),Invites.class);
+                startActivity(intent);
+            }
+        });
+
+
 
         String resultURL = ip+"/findsessions/"+id;
         new Sessions.GetData().execute(resultURL);

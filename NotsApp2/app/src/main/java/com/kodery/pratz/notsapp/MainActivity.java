@@ -139,9 +139,12 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
 
-
+                    case 0:
+                        Intent intent=new Intent(MainActivity.this,SimpleContactFormUIDesign.class);
+                        startActivity(intent);
+                        break;
                 default:
-                    Intent intent = new Intent(MainActivity.this, newSession.class);
+                    intent = new Intent(MainActivity.this, newSession.class);
                     startActivity(intent);
 
             }

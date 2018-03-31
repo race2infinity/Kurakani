@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/contact_form_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="5dp"
+        android:text="Create Events"
+        android:textColor="#ce3232"
+        android:textSize="40sp"
+        android:typeface="serif" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:hint="Event Name"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:hint="Venue"
+        android:inputType="textEmailAddress" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:hint="Start at"
+        android:inputType="phone" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:hint="Ends at"
+        android:inputType="phone" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="150dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:breakStrategy="balanced"
+        android:fitsSystemWindows="true"
+        android:gravity="top"
+        android:hint="Event Description"
+        android:inputType="textMultiLine"
+        android:padding="5dp"
+        android:singleLine="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/colorPrimaryDark"
+        android:elevation="4dp"
+        android:paddingLeft="70dp"
+        android:paddingRight="70dp"
+        android:text="Submit"
+        android:textColor="#fff" />
+</LinearLayout>
