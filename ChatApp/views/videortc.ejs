@@ -11,12 +11,12 @@
 <div id="l-video"></div>
 <div id="r-video"></div>
 
-<script src='../public/scripts/rtc.min.js'></script>
+<script type='text/javascript' src='/scripts/rtc.min.js'></script>
 
-<script>
+<script type='text/javascript'>
   // Set RTC options.
   var rtcOpts = {
-    room: <%= room_name %>,
+    room: '<%= room_name %>',
     signaller: 'https://switchboard.rtc.io'
   };
   // call RTC module
