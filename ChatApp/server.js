@@ -752,8 +752,9 @@ app.get("/export/:session_id", (req, res) => {
       Messages.csvReadStream(docs)
         .pipe(fs.createWriteStream(filename))
         .on('close', () => {
-          const filePath = path.join(__dirname, filename);
-          const stat = fs.statSync(filePath);
+          const filePath = path.join(filename);
+        console.log(filePath);  
+	const stat = fs.statSync(filePath);
 
           res.writeHead(200, {
             'Content-Type': 'text/csv',
