@@ -3,6 +3,9 @@ A Real Time Chat Application built using Node.js, Express, Mongoose, Socket.io, 
 
 # Index
 + [Installation](#installation)
++ [Getting Started with the Application](#gswta)
++ [Deploying the Android Application](#dtaa)
++ [How to use the Application](#htuta)
 + [How it Works](#howitworks)
 
 
@@ -33,12 +36,12 @@ Your admin app should now be running on [localhost:3020](http://localhost:3020/)
 
 
 
-### Getting Started with the Application
+### Getting Started with the Application<a name="gswta"></a>
 1. Create a super admin in mongo shell
 2. Login to the webportal[localhost:3020](http://localhost:3020) with the created Super Admin credentials.
 3. Create Departments and assign Admins to these departments.
 
-### Deploying the Android Application
+### Deploying the Android Application<a name="dtaa"></a>
 1. Install and get started with Android Studio using https://developer.android.com/studio/index.html
 2. Open the application source code in Android Studio.
 3. Change the IP address the application will connect to, to the IP address your server will run on.
@@ -46,7 +49,7 @@ Your admin app should now be running on [localhost:3020](http://localhost:3020/)
 5. Resgister/Login to the app.
 
 
-### How to use the application
+### How to use the application<a name="htuta"></a>
 1. Login with your credentials.
 2. Explore the various features of the application like sessions invites, session accpet/decline.
 3. Create broadcasts, view your profile, etc.
