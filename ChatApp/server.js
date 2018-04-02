@@ -118,47 +118,33 @@ app.post("/messages", async (req, res) => {
         message.sender = x.sender;
         message.body = x.body;
         message.sess_id=x.sess_id;
-        console.log(message.body);
         var d = new Date();
         var mum_offset = 5.5*60;
         d.setMinutes(d.getMinutes() + mum_offset);
         message.created_at=d;
         x.created_at=d;
-        //message.send_name="Chaitanya";
-        //console.log(message.sender)
         User.findOne({empid:message.sender},(err,user)=>{
            message.send_name =user.name;
            x.send_name=user.name;
-          //console.log(message.send_name)
            message.send_des =user.designation;
            x.send_des =user.designation;
-          // console.log(message.send_des)
           Department.findOne({id:user.department},(err,dep)=>{
              message.send_dep =dep.name;
              x.send_dep =dep.name;
-             //console.log("1"+message.send_dep)
              var me = new Messages(message);
              me.save();
-             console.log(me);
              x.body=decrypt(x.body);
-             console.log(x)
              io.emit("chat",x);
           })
         })
-        //  console.log(message)
         await message.save();
-        //console.log(message.send_dep)
 
-        //await message.save();
 
         Session.findByIdAndUpdate(message.sess_id,
         { $set  : { Lastmessage : message.body, LastMT  : d}},
            () => console.log("Last Message Added")
         );
-        //console.log(message)
         res.sendStatus(200);
-          //Emit the event
-          //io.emit("refresh");
     } catch (error) {
         res.sendStatus(500);
         console.error(error);
@@ -175,7 +161,6 @@ app.get("/messages/:seid", (req, res) => {
         mes.body=decrypt(mes.body)
       })
         res.send(chats)
-        console.log("Chats Accessed");
     });
 });
 
@@ -194,11 +179,7 @@ app.post("/newsession",async(req,res)=>{
       se.save();
     })
     await session.save();
-    console.log("Session Created");
-    console.log(req.body)
     res.sendStatus(200);
-    //Emit the event
-    //io.emit("sessioncreate",req.body);
   }catch(error){
       res.sendStatus(500);
       console.error(error);
@@ -209,14 +190,12 @@ app.post("/newsession",async(req,res)=>{
 app.get("/broadcast", (req, res) => {
     Broadcast.find({}, (error, bcast) => {
         res.send(bcast)
-        console.log("Broadcast Accessed")
     })
 })
 
 //Saving broadcast in the database
 app.post("/broadcast", async (req, res) => {
     try {
-    console.log(req.body)
         var bcast = new Broadcast(req.body)
         var d = new Date()
         var mum_offset = 5.5*60;
@@ -229,8 +208,6 @@ app.post("/broadcast", async (req, res) => {
              bcast.send_dep =dep.name;
              var bc = new Broadcast(bcast)
              bc.save()
-             console.log(bc);
-             //Emit the event
              io.emit("broadcast", bc)
              res.sendStatus(200)
           })
@@ -245,7 +222,6 @@ app.post("/broadcast", async (req, res) => {
 })
 
 function encryptPassword (password, salt) {
-  console.log(password, salt)
   if (!password || !salt) return ''
   var saltgen = new Buffer(salt, 'base64')
   return crypto.pbkdf2Sync(password, saltgen, 10000, 64, 'sha512').toString('base64')
@@ -260,7 +236,6 @@ app.post("/userdata/",async(req,res)=>{
   try{
     var data = req.body
     data.salt =  makeSalt()
-    console.log(data.password1);
     data.hashedPassword = encryptPassword(data.password1, data.salt)
     delete data.password1
     // var user = new User(data)
@@ -276,7 +251,6 @@ app.post("/userdata/",async(req,res)=>{
           else {
             user.dname = depart.name
             user.save();
-            console.log("User Created");
             Session.findByIdAndUpdate(depart.sid, {$push: {members: user.empid}}, (err, sess) => {
               if (err) return err
             })
@@ -308,25 +282,21 @@ app.post('/userdata/:id/verify', (req, res) => {
 app.post("/login/app", (req,res)=>{
   var id = req.body.id
   var pass = req.body.password
-  console.log("Login Accessed")
   User.findOne({empid:id},(err,user)=>{
     if(err){
       return err
     }
     if(!user){
       res.status(500).send({code:"EII", message:"Employ ID Incorrect"})
-      console.log("User does not exist")
     }
     else {
       console.log(pass)
       var tempHash = encryptPassword(pass, user.salt)
       if(tempHash==user.hashedPassword){
         res.sendStatus(200)
-        console.log("Right password")
       }
       else{
         res.status(500).send({code:"PII", message:"Password ID Incorrect"})
-        console.log("Wrong password")
       }
     }
   })
@@ -339,7 +309,6 @@ app.get("/userdata/:id/", (req, res) => {
       if (error) {
         return res.status(500).send({ message: 'Something went wrong' });
       }
-      console.log("Users Accesed")
       if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
         return Department.findById(user.department, 'name', (err, dep) => {
           user.departmentDetails = { name: dep.name };
@@ -374,7 +343,6 @@ app.get("/depdata/:id", (req, res) => {
     if (error) {
       return res.status(500).send({ message: "Something went wrong" });
     }
-    console.log("Department User Accessed");
 
     if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
       return res.render('users', { users: users });
@@ -394,7 +362,6 @@ app.post("/depdata/", async(req, res) => {
         return err
       }
       if(dep1) {
-        console.log("Department Created")
         //var dept = dep1
         var sess = new Session()
         sess.name=dep.name
@@ -426,7 +393,6 @@ app.get("/findinvites/:id",(req,res)=>{
   var id=req.params.id
   Session.find({invited:id},(error,session)=>{
     res.send(session)
-    console.log("Session Invites Accessed")
   })
 })
 
@@ -435,7 +401,6 @@ app.get("/findsessions/:id",(req,res)=>{
   var id = req.params.id
   Session.find({members:id},(error,session)=>{
     res.send(session)
-    console.log("Session members Accesed")
   })
 })
 
@@ -452,8 +417,6 @@ app.post("/events",async(req,res)=>{
       ev.save();
     })
     await event.save();
-    console.log("Event Created");
-    console.log(req.body)
     res.sendStatus(200);
     //Emit the event
     //io.emit("sessioncreate",req.body);
@@ -467,7 +430,6 @@ app.post("/sessions/no",(req,res)=>{
   Session.findByIdAndUpdate(
     sid,
     { $pull: { invited: id } },
-    () => console.log('User removed')
   );
 })
 
@@ -480,7 +442,6 @@ app.post("/events/no",(req,res)=>{
   Event.findByIdAndUpdate(
     eid,
     { $pull: { invited: id } },
-    () => console.log('User removed')
   );
   res.sendStatus(200);
 })
@@ -488,7 +449,6 @@ app.post("/events/no",(req,res)=>{
 //session profile
 app.get("/sessions/:sid", (req, res) => {
   var sid = req.params.sid;
-  console.log(sid);
   Session.findOne({ _id: sid }, (err, ses) => {
     User.find(
       { empid: { $in: ses.members } },
@@ -500,7 +460,6 @@ app.get("/sessions/:sid", (req, res) => {
         };
         return res.send(result)
       });
-    console.log("Sessions Data Accessed");
   });
 })
 
@@ -523,16 +482,13 @@ app.post("/sessions/yes",(req,res)=>
   Session.findByIdAndUpdate(
     sid,
     { $pull: { invited: id } },
-    () => console.log('User removed')
   );
   Session.findByIdAndUpdate(
     sid,
     { $push: { members: id } },
-    () => console.log('User added')
   );
   User.update({empid:id},
     { $push : { sessions: sid } },
-    ()=>console.log('User profile updated')
   );
   res.sendStatus(200)
 })
@@ -543,21 +499,17 @@ app.get("/eventinvites/:id",(req,res)=>{
   var id=req.params.id
   Events.find({invited:id},(error,event)=>{
     res.send(event)
-    console.log("Event Invites Accessed")
   })
 })
 
 
 app.get("/events/:empid",(req,res)=>{
   var empid = req.params.empid;
-  console.log('empid:',empid)
   var d= new Date()
   var num_offset=5.5*60;
   d.setMinutes(d.getMinutes()+num_offset);
-  console.log(d);
   Events.where('members').in([empid]).where('ends_at').gt(d)
   .exec((err, events) => {
-    console.log('something', events)
     res.send(events)
     // events.forEach((event) => {
     //   event.remove();
@@ -565,7 +517,6 @@ app.get("/events/:empid",(req,res)=>{
   });
   // Events.find({members:id}(error,session)=>{
   //   res.send(session)
-  //   console.log("Event members Accesed")
   // })
 })
 
@@ -577,16 +528,13 @@ app.post("/events/yes",(req,res)=>
   Events.findByIdAndUpdate(
     eid,
     { $pull: { invited: id } },
-    () => console.log('User removed')
   );
   Events.findByIdAndUpdate(
     eid,
     { $push: { members: id } },
-    () => console.log('User added')
   );
   User.update({empid:id},
     { $push : { events: eid } },
-    ()=>console.log('User profile updated')
   );
   res.sendStatus(200)
 
@@ -611,7 +559,6 @@ app.post("/addsession/",(req,res)=>{
     empid.forEach(function(id){
       session.invited.push(id);
     });
-    console.log("new value: "+session.invited)
       session.markModified('invited')
       session.save();
   })
@@ -624,21 +571,19 @@ app.post("/leavesession/",(req,res)=>{
   var empid = req.body.id;
   Session.findOne({_id:sid},(err,sa)=>{
     if(err)
-      return console.log(err);
+    {
+    	console.log(err)
+    }
     else {
-      console.log(sa.admin)
       if(sa.admin==empid){
 
-        console.log("Admin : "+ sa.admin)
         Session.findByIdAndUpdate(
           sid,
           { $pull : { members : empid } },
-          ()=>console.log("Admin left session")
         );
         /*Session.findByIdAndUpdate(
           sid,
         { $set : { admin : $arrayElemAt : [ "$members", 1 ] } },
-        ()=>console.log("Admin Replaced")
       );*/
       }
       else {
@@ -646,12 +591,10 @@ app.post("/leavesession/",(req,res)=>{
           Session.findByIdAndUpdate(
             sid,
             { $pull : { members : empid } },
-            ()=>console.log("User left session")
           );
         }
         User.update({empid:empid},
             { $pull:{sessions:sid}},
-            ()=>console.log("User profile updated")
         )
       }
       res.sendStatus(200)
@@ -665,7 +608,6 @@ app.post("/deletesession/",(req,res)=>{
   Session.remove({_id:sid},function(err){
     if(!err)
     {
-      console.log("Session Deleted");
       res.sendStatus(200);
     }
     else {
@@ -679,14 +621,17 @@ app.post("/deletesession/",(req,res)=>{
 // getting a file and emitting it
 app.post("/fileshare", (req, res) => {
   var js = new Files();
-  //console.log(req.body)
   fs.writeFile(req.body.fileName, req.body.data, 'base64', function(err, data){
     if (err)
-      console.log(err)
+    {
+    	console.log(err)
+    }
     else{
       fs.readFile(req.body.fileName,(err,data1)=>{
         if (err)
-       console.log(err)
+        {
+    		console.log(err)
+    	}
         else{
         js.sender = req.body.id
         js.sess_id = req.body.sid
@@ -697,7 +642,6 @@ app.post("/fileshare", (req, res) => {
         d.setMinutes(d.getMinutes() + mum_offset);
         js.created_at=d;
         js.save();
-        console.log("Write Done")
       }
      })
       io.emit("file",js)
@@ -714,10 +658,8 @@ app.post("/fileshare", (req, res) => {
     writerStream.end();
 
     writerStream.on('finish', function() {
-      console.log("Write completed.");
    });
    writerStream.on('error', function(err){
-    console.log(err.stack);
   });
     fs.readFile(req.body.fileName,(err,data1)=>{
         //js.sender = req.body.id
@@ -738,10 +680,11 @@ app.get("/fileshare/:seid", (req, res) => {
     var sid=req.params.seid;
     Files.find({sess_id:sid}, (error, data) => {
         if(error)
-          console.log(error);
+        {
+    		console.log(error)
+    	}
         else{}
         res.send(data);
-        console.log("Files Accessed");
       });
 });
 
@@ -775,6 +718,5 @@ app.use('/users', users);
 
 //creating a server
 var server = http.listen(3020, () => {
-    console.log(new Date())
     console.log("Well done, now I am listening on ", server.address().port)
 })
