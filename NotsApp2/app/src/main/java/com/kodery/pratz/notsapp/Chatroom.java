@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +30,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -134,56 +137,56 @@ public class Chatroom extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
         if(resultCode != RESULT_CANCELED){
-        if (requestCode == SELECT_PICTURE) {
-            // Make sure the request was successful
-            Log.d("Vicky","I'm out.");
-            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                Uri selectedImageUri = data.getData();
-                fname=getFileName(selectedImageUri);
-                Log.d("hithere",selectedImageUri.toString());
-                Bitmap selectedImageBitmap = null;
-                try {
-                    selectedImageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            if (requestCode == SELECT_PICTURE) {
+                // Make sure the request was successful
+                Log.d("Vicky","I'm out.");
+                if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                    Uri selectedImageUri = data.getData();
+                    fname=getFileName(selectedImageUri);
+                    Log.d("hithere",selectedImageUri.toString());
+                    Bitmap selectedImageBitmap = null;
+                    try {
+                        selectedImageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    //selectedImage=findViewById(R.id.imageView4);
+                    //selectedImage.setImageBitmap(selectedImageBitmap);
+
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    selectedImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+                    byte[] byteArrayImage = byteArrayOutputStream.toByteArray();
+                    encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+                    Log.d("Vicky",encodedImage);
+                    Message msg=new Message("",null,"",selectedImageBitmap);
+                    messageList.add(msg);
+                    mMessageAdapter.notifyDataSetChanged();
+                    mMessageRecycler.scrollToPosition(messageList.size()-1);
+                    //new FileTry.UploadImages().execute();
                 }
-                //selectedImage=findViewById(R.id.imageView4);
-                //selectedImage.setImageBitmap(selectedImageBitmap);
 
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                selectedImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-                byte[] byteArrayImage = byteArrayOutputStream.toByteArray();
-                encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
-                Log.d("Vicky",encodedImage);
-                Message msg=new Message("",null,"",selectedImageBitmap);
-                messageList.add(msg);
-                mMessageAdapter.notifyDataSetChanged();
-                mMessageRecycler.scrollToPosition(messageList.size()-1);
-                //new FileTry.UploadImages().execute();
+
             }
-
-
-        }
-        else if(requestCode==PICKFILE_RESULT_CODE){
-            //Log.d("ge","egr");
-            Bitmap selectedImageBitmap = null;
-            try{
-            String filepath=data.getData().getPath();
-            fname=filepath.substring(filepath.lastIndexOf("/")+1);
-            InputStream inputStream = new FileInputStream(filepath);
-            //byte[] byteArray = IOUtils.toByteArray(inputStream);
-           // encodedImage = Base64.encodeToString(byteArray, Base64.DEFAULT);
-            //PrintLog.showTag(TAG,"pdf converted to string : " + encodedPdfString);
-            //return encodedPdfString;
-                selectedImageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_attach_file_black_24dp);                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                //Log.d("good",selectedImageBitmap.toString());
-                Message msg=new Message("",null,"",selectedImageBitmap);
-                messageList.add(msg);
-                mMessageAdapter.notifyDataSetChanged();
-                mMessageRecycler.scrollToPosition(messageList.size()-1);
-            Log.d("Vicky",encodedImage);
-            Log.d("herebro",filepath);}catch(Exception e){e.printStackTrace();}
-        }
+            else if(requestCode==PICKFILE_RESULT_CODE){
+                //Log.d("ge","egr");
+                Bitmap selectedImageBitmap = null;
+                try{
+                    String filepath=data.getData().getPath();
+                    fname=filepath.substring(filepath.lastIndexOf("/")+1);
+                    InputStream inputStream = new FileInputStream(filepath);
+                    //byte[] byteArray = IOUtils.toByteArray(inputStream);
+                    // encodedImage = Base64.encodeToString(byteArray, Base64.DEFAULT);
+                    //PrintLog.showTag(TAG,"pdf converted to string : " + encodedPdfString);
+                    //return encodedPdfString;
+                    selectedImageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_attach_file_black_24dp);                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    //Log.d("good",selectedImageBitmap.toString());
+                    Message msg=new Message("",null,"",selectedImageBitmap);
+                    messageList.add(msg);
+                    mMessageAdapter.notifyDataSetChanged();
+                    mMessageRecycler.scrollToPosition(messageList.size()-1);
+                    Log.d("Vicky",encodedImage);
+                    Log.d("herebro",filepath);}catch(Exception e){e.printStackTrace();}
+            }
         }
     }
 
@@ -214,6 +217,14 @@ public class Chatroom extends AppCompatActivity {
         return lastVal;
     }
 
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -221,6 +232,10 @@ public class Chatroom extends AppCompatActivity {
         if(Build.VERSION.SDK_INT>22){
             requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
         }
+
+
+
+
 
 
         SharedPreferences sharedPref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
@@ -253,11 +268,32 @@ public class Chatroom extends AppCompatActivity {
 
         Toolbar toolbar=(Toolbar)findViewById(R.id.toolbar);
 
-        //ActionBar actionbar=getSupportActionBar();
+
+
+
+
+        ActionBar actionbar=getSupportActionBar();
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(valuename);
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
+
+
+
+        ImageButton imageView=(ImageButton)findViewById(R.id.imageButton);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(Chatroom.this,Appear.class);
+                startActivity(intent);
+                //startActivity(intent);
+
+
+
+            }
+        });
+
+
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -273,11 +309,8 @@ public class Chatroom extends AppCompatActivity {
         mMessageRecycler = (RecyclerView) findViewById(R.id.recyclerview_message_list);
 
         socket.connect();
-        //socket.on("chat", handleIncomingMessages);
-        socket.connect();
-        socket.on("file",handleIncomingFile);
-        socket.connect();
-        socket.on("lel",yolo);
+        socket.on("chat", handleIncomingMessages);
+
 
         OkHttpClient client = new OkHttpClient();
         client.setConnectTimeout(300, TimeUnit.SECONDS); // connect timeout
@@ -347,7 +380,7 @@ public class Chatroom extends AppCompatActivity {
                     new Chatroom.PostData().execute(resultURL, text);
                     mMessageAdapter.notifyDataSetChanged();
                 }
-                String resultURL = "http://192.168.0.30:3020/"+"/fileshare/";
+                String resultURL = "http://18.219.228.112"+"/fileshare/";
                 new Chatroom.PostDataimage().execute(resultURL, text);
 
             }
@@ -396,11 +429,6 @@ public class Chatroom extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
 
     @Override
     protected void onDestroy() {
@@ -462,7 +490,7 @@ public class Chatroom extends AppCompatActivity {
                 public void run() {
 
                     try {
-                    Log.d("yoman","gege");
+                        Log.d("yoman","gege");
 
                     } catch (Exception e) {
                         Log.d("yomom",e.toString());
@@ -527,11 +555,11 @@ public class Chatroom extends AppCompatActivity {
 
 
     @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
 
-            getMenuInflater().inflate(R.menu.main2, menu);
+        getMenuInflater().inflate(R.menu.main2, menu);
 
-            MenuItem myMenuItem = menu.findItem(R.id.myprofile);
+        MenuItem myMenuItem = menu.findItem(R.id.myprofile);
 
         return true;
     }
@@ -783,4 +811,3 @@ public class Chatroom extends AppCompatActivity {
     }
 
 }
-

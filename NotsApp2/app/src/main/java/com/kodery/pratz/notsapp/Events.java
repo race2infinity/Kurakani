@@ -1,35 +1,24 @@
 package com.kodery.pratz.notsapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-
-import java.util.Dictionary;
-import java.util.Hashtable;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.os.*;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,51 +31,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
+import java.util.Date;
 
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Enumeration;
-
-import android.app.AlertDialog.Builder;
-import android.app.AlertDialog;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-import com.kodery.pratz.notsapp.Sessions;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -96,29 +45,27 @@ import com.kodery.pratz.notsapp.Sessions;
  * Use the {@link Events#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Events extends Fragment {
-   // public static String id=Sessions.id;
 
-    public static  String ip=Sessions.ip;
-    public static String id;
+
+public class Events extends Fragment {
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //setUserVisibleHint(true);
+    }
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    Context context;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    ArrayList<Event> mEventList = new ArrayList<Event>();
+    public String ip = MainActivity.ip;
+    public String sid;
 
-    //KALDON's VARIABLES:
-    private static Events sInvites;
-
-    int counter=1,flag=0;
-    String adminname;
-    String sid;
-    //public ArrayList<String> lstnames=new ArrayList<String>();
-    Dictionary lstnames=new Hashtable<String, String>();
-    Dictionary lstadmin=new Hashtable<String, String>();
-    Dictionary lstdate=new Hashtable<String, String>();
-    //public ArrayList<String> lstadmin=new ArrayList<String>();
-    //public ArrayList<String> lstdate=new ArrayList<String>();
-    SwipeRefreshLayout mSwipeRefreshLayout;
+    public RecyclerView mEventRecycler;
+    public EventAdapter mEventAdapter;
 
 
     // TODO: Rename and change types of parameters
@@ -126,15 +73,6 @@ public class Events extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            getFragmentManager().beginTransaction().detach(this).attach(this).commit();
-        }
-    }
-
 
     public Events() {
         // Required empty public constructor
@@ -167,14 +105,12 @@ public class Events extends Fragment {
         }
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_events, container, false);
     }
-
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -183,75 +119,19 @@ public class Events extends Fragment {
         }
     }
 
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
-    //KALDON's SHIT BEGINS:
-
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        sInvites = this;
-
+        //mEventList.add(new Event("Study", "OK", "Bye", "Chaitu", "Hyd", "19191"));
         SharedPreferences sharedPref = getActivity().getSharedPreferences("userinfo", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        id = sharedPref.getString("userid","");
-/*
-        try {
-            new Timer().scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-
-                    getActivity().runOnUiThread(new TimerTask() {
-                        @Override
-                        public void run() {
-                            try {
-                                SharedPreferences sharedPref = getActivity().getSharedPreferences("userinfo", Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                String id = sharedPref.getString("userid","");
-
-
-                                Log.d("lol", "lol");
-                                String resultURL = ip + "/findinvites/" + id;
-                                new RestOperation().execute(resultURL);
-                                ListView lst_chat = (ListView) getView().findViewById(R.id.lstdata);
-                                fillerInvites adapter = new fillerInvites(getActivity(), lstnames, lstadmin, lstdate);
-                                lst_chat.setAdapter(adapter);
-                                flag = 1;
-                            } catch (Exception e) {
-                                Log.d("hello", e.toString());
-                            }
-                        }
-                    });
-
-                }
-            }, 0, 1000 * 60);
-        } catch (Exception e) {
-            Log.d("YAYAYA", e.toString());
-
-
-        }
-*/
-
-        Log.d("lol", "lol");
-        String resultURL = ip + "/findinvites/" + id;
+        String id = sharedPref.getString("userid","");
+        String resultURL = ip + "/eventinvites/" + id;
         new RestOperation().execute(resultURL);
-        ListView lst_chat = (ListView) getView().findViewById(R.id.lstdata);
-        fillerInvites adapter = new fillerInvites(getActivity(), lstnames, lstadmin, lstdate);
-        lst_chat.setAdapter(adapter);
 
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.activity_main_swipe_refresh_layout);
+        /*
+        final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -262,56 +142,112 @@ public class Events extends Fragment {
                         SharedPreferences.Editor editor = sharedPref.edit();
                         String id = sharedPref.getString("userid","");
 
-                        String resultURL = ip + "/findinvites/" + id;
+                        String resultURL = ip + "/events/" + id;
                         new RestOperation().execute(resultURL);
-                        ListView lst_chat = (ListView) getView().findViewById(R.id.lstdata);
-                        fillerInvites adapter = new fillerInvites(getActivity(), lstnames, lstadmin, lstdate);
-                        lst_chat.setAdapter(adapter);
                         mSwipeRefreshLayout.setRefreshing(false);
                     }
                 }, 0);
             }
-        });
+        });*/
+
+        mEventRecycler = (RecyclerView) getView().findViewById(R.id.recycle_event);
+        mEventAdapter = new EventAdapter(getContext(), mEventList);
+        LinearLayoutManager llm = new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false);
+        //llm.setStackFromEnd(true);
+        llm.setReverseLayout(true);
+        mEventRecycler.setLayoutManager(llm);
+        mEventRecycler.getLayoutManager().setMeasurementCacheEnabled(false);
+        mEventRecycler.setHasFixedSize(true);
+        mEventRecycler.setAdapter(mEventAdapter);
+
+
+        mEventRecycler.addOnItemTouchListener(
+                new RecycleritemClickListener(getContext(),mEventRecycler  ,new RecycleritemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        Log.d("TEsty","test");
+
+                    }
+
+                    @Override public void onLongItemClick(View view, int position) {
+                        // do whatever
+                    }
+                })
+        );
+
+
+/*
+        mEventRecycler.addOnItemTouchListener(
+            new RecycleritemClickListener(getContext(),mEventRecycler, new RecycleritemClickListener.OnItemClickListener() {
+                @Override public void onItemClick(View view, int position) {
+                    view.setOnClickListener(new View.OnClickListener(){
+                        int flag;
+                        //String temp=txtView.getText().toString();
+                        //sid=temp;
+                        @Override
+                        public void onClick(View view){
+                            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which){
+                                        case DialogInterface.BUTTON_POSITIVE:
+                                            flag=1;
+                                            String resultURL = Invites.ip+"/events/yes";
+                                            new PostData().execute(resultURL);
+                                            break;
+
+                                        case DialogInterface.BUTTON_NEGATIVE:
+                                            flag=0;
+                                            resultURL = Invites.ip+"/events/no";
+                                            new PostData().execute(resultURL);
+                                            break;
+                                    }
+                                   // String temp=txtView.getText().toString();
+                                    //Invites.getInstance().setme(flag,temp);
+                                }
+                            };
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            builder.setMessage("Be a part of this Event").setPositiveButton("Yes", dialogClickListener)
+                                    .setNegativeButton("No", dialogClickListener).show();
+                        }
+
+                    });
+                }
+
+                @Override public void onLongItemClick(View view, int position) {
+                    // do whatever
+                }
+            })
+        );*/
+
+
     }
 
 
-    public static Events getInstance() {
-        return sInvites;
+
+
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
-    public void setme(int flag,String text){
-        if(flag==1){
-            SharedPreferences sharedPref = getActivity().getSharedPreferences("userinfo", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            String id = sharedPref.getString("userid","");
-
-            Toast.makeText(getActivity(), "You are now a part of this Session", Toast.LENGTH_SHORT).show();
-            String resultURL = ip+"/findsessions/"+id;
-            Sessions.GetData innerObject = new Sessions().new GetData();
-            innerObject.execute(resultURL);
-        }
-        else{
-            Toast.makeText(getActivity(), "You have declined the session request", Toast.LENGTH_SHORT).show();
-        }
-        setsid(text);
-        lstnames.remove(text);
-        lstadmin.remove(text);
-        lstdate.remove(text);
-        ListView lst_chat = (ListView) getView().findViewById(R.id.lstdata);
-        fillerInvites adapter=new fillerInvites(getActivity(),lstnames,lstadmin,lstdate);
-        lst_chat.setAdapter(adapter);
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
     }
 
-    public void callme()
-    {
-        ListView lst_chat = (ListView) getView().findViewById(R.id.lstdata);
-        fillerInvites adapter=new fillerInvites(getActivity(),lstnames,lstadmin,lstdate);
-        lst_chat.setAdapter(adapter);
-    }
-
-    public void setsid(String temp){
-        sid=temp;
-    }
 
     public class RestOperation extends AsyncTask<String,Void,String> {
 
@@ -361,48 +297,28 @@ public class Events extends Fragment {
                 Log.d("calden",result);
                 JSONArray arr=new JSONArray(result);
                 JSONObject jObj;
+                mEventList.clear();
                 for(int i=0;i<arr.length();i++)
                 {
                     jObj = arr.getJSONObject(i);
                     Log.d("printme",jObj.toString());
-                    String name = jObj.getString("name");
-                    String id=jObj.getString("_id");
-                    String adminid=jObj.getString("admin");
-                    String adminname=jObj.getString("admin_name");
+                    String name = jObj.getString("name"); //Event name
+                    sid=jObj.getString("_id"); //Event id
+                    String adminid=jObj.getString("creator"); //creator
+                    String adminname=jObj.getString("creat_name"); //creat_name
+                    String dstart = jObj.getString("starts_at");
+                    String dend = jObj.getString("ends_at");
                     String date=jObj.getString("created_at");
-                    String temp=date;
-                    if(temp.contains("T")){
+                    Log.d("heygys", name+" "+sid);
+
+                    /*if(temp.contains("T")){
                         temp= temp.substring(0, temp.indexOf("T"));
-                    }
-                    Log.d("print1",name+" "+id+" "+date);
-                    String resultURL = ip+"/userdata/"+adminid;
-                    new RestOperation2().execute(resultURL);
-
-                    //TimeUnit.SECONDS.sleep(3);
-
-                    /*
-                    if(lstnames.get(id)==null && flag==1)
-                    {
-                        Log.d("change","its new");
-                        NotificationCompat.Builder b = new NotificationCompat.Builder(getActivity());
-                        b.setAutoCancel(true)
-                                .setDefaults(Notification.DEFAULT_ALL)
-                                .setWhen(System.currentTimeMillis())
-                                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                                .setTicker("Hearty365")
-                                .setContentTitle("Invites Notification")
-                                .setContentText("You have Pending invites")
-                                .setDefaults(Notification.DEFAULT_LIGHTS| Notification.DEFAULT_SOUND)
-                                .setContentInfo("Info");
-                        NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-                        //notificationManager.notify(1, b.build());
-
-                    }
-*/
-                    lstnames.put(id,name);
-                    lstadmin.put(id,adminname);
-                    lstdate.put(id,temp);
+                    }*/
+                    Log.d("print1",name+" "+sid+" "+date);
+                    Event eve = new Event(name, dstart, dend, adminname, date, sid);
+                    mEventList.add(eve);
                 }
+                mEventAdapter.notifyDataSetChanged();;
             }
             catch (Exception e)
             {
@@ -411,173 +327,6 @@ public class Events extends Fragment {
             }
         }
     }
-
-    public void setAdmin(String temp)
-    {
-        adminname=temp;
-    }
-
-    public class RestOperation2 extends AsyncTask<String,Void,String> {
-
-        @Override
-        protected String doInBackground(String... params)
-        {
-            StringBuilder result= new StringBuilder();
-            try{
-
-                URL url = new URL(params[0]);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setReadTimeout(10000);
-                urlConnection.setConnectTimeout(10000);
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setRequestProperty("Content-Type","application/json");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-
-                line=bufferedReader.readLine();
-
-                result.append(line).append("\n");
-
-
-            }catch(IOException ex){
-                return ex.toString();
-            }
-            return result.toString();
-        }
-
-
-        @Override
-        protected void onPreExecute()
-        {
-
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onPostExecute(String result)
-        {
-            try {
-                super.onPostExecute(result);
-                Log.d("hello",result);
-                JSONObject a=new JSONObject(result);
-                //JSONObject j=a.getJSONObject(0);
-                String temp=a.getString("name");
-                setAdmin(temp);
-            }
-            catch (Exception e)
-            {
-                Log.d("ERROR2",e.toString());
-
-            }
-        }
-    }
-
-
-}
-
-
-class fillerInvites extends BaseAdapter {
-
-    Context context;
-    String sid;
-    LayoutInflater layoutInflater;
-    ArrayList<String> msglist=new ArrayList<String>();
-    ArrayList<String> msglistadmin=new ArrayList<String>();
-    ArrayList<String> msglistdate=new ArrayList<String>();
-    ArrayList<String> msgid=new ArrayList<String>();
-
-
-    public fillerInvites(Context context, Dictionary msg, Dictionary msgadmin, Dictionary msgdate){
-        this.context=context;
-
-
-
-        layoutInflater=(LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        for (Enumeration k = msg.keys(); k.hasMoreElements();)
-        {
-            String temp=k.nextElement().toString();
-            msgid.add(temp);
-            msglist.add(msg.get(temp)+"");
-            msglistadmin.add(msgadmin.get(temp)+"");
-            msglistdate.add(msgdate.get(temp)+"");
-        }
-    /*
-    for(int i=0;i<msg.size();i++){
-        msglist.add(msg.get(i));
-        msglistadmin.add(msgadmin.get(i));
-        msglistdate.add(msgdate.get(i));
-    }*/
-    }
-
-    @Override
-    public int getCount() {
-        return msglist.size();
-    }
-
-    @Override
-    public Object getItem(int i) {
-        return msglist.get(i);
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return i;
-    }
-
-    @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        view=layoutInflater.inflate(R.layout.activity_fillerinvites,null);
-        final TextView txtView=(TextView)view.findViewById(R.id.sid);
-        final TextView txtView1=(TextView)view.findViewById(R.id.txt);
-        final TextView txtView2=(TextView)view.findViewById(R.id.txtadmin);
-        final TextView txtView3=(TextView)view.findViewById(R.id.txtdate);
-        txtView.setText(msgid.get(i));
-        //sid=(msgid.get(i));
-        txtView1.setText(msglist.get(i));
-        txtView2.setText(msglistadmin.get(i));
-        txtView3.setText(msglistdate.get(i));
-
-        view.setOnClickListener(new View.OnClickListener(){
-            int flag;
-            @Override
-            public void onClick(View view){
-                String temp=txtView.getText().toString();
-                sid=temp;
-                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case DialogInterface.BUTTON_POSITIVE:
-                                flag=1;
-                                String resultURL = Events.ip+"/sessions/yes";
-                                new PostData().execute(resultURL);
-                                break;
-
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                flag=0;
-                                resultURL = Events.ip+"/sessions/no";
-                                new PostData().execute(resultURL);
-                                break;
-                        }
-                        String temp=txtView.getText().toString();
-                        Events.getInstance().setme(flag,temp);
-                    }
-                };
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setMessage("Be a part of this Session").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
-            }
-
-        });
-
-        return view;
-
-    }
-
     public class PostData extends AsyncTask<String, Void, String> {
 
         @Override
@@ -605,7 +354,7 @@ class fillerInvites extends BaseAdapter {
 
             JSONObject datatosend=new JSONObject();
 
-            String id=Events.id;
+            String id=Invites.id;
 
             //SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
             //String id=sharedPref.getString(MainActivity."userid","");
@@ -645,6 +394,4 @@ class fillerInvites extends BaseAdapter {
 
 
     }
-
-
 }

@@ -16,7 +16,7 @@
     <% department.forEach(function(department){%>
       <tr>
         <td><span><%= department.id %></span></td>
-        <td><span><a href=<%= `/depdata/${department._id}` %>><%= department.name %></a></span></td>
+        <td><span><a href=<%= `/depdata/${department.id}` %>><%= department.name %></a></span></td>
         <td><span><%= department.location %></span></td>
         <td><span><%= department.admin %></span></td>
       </tr>

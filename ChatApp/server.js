@@ -310,7 +310,7 @@ app.get("/userdata/:id/", (req, res) => {
         return res.status(500).send({ message: 'Something went wrong' });
       }
       if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
-        return Department.findById(user.department, 'name', (err, dep) => {
+        return Department.findOne({ id: user.department}, 'name', (err, dep) => {
           user.departmentDetails = { name: dep.name };
           return res.render('user', { user: user });
         });
@@ -339,7 +339,7 @@ app.get("/depdata", (req, res) => {
 //fetching employees from a department
 app.get("/depdata/:id", (req, res) => {
   var id = req.params.id;
-  return User.find({ department: id }, '-password1 -password2 -aadhar', (error, users) => {
+  return User.find({ department: id }, '-salt -hashedPassword -aadhar', (error, users) => {
     if (error) {
       return res.status(500).send({ message: "Something went wrong" });
     }
@@ -695,8 +695,9 @@ app.get("/export/:session_id", (req, res) => {
       Messages.csvReadStream(docs)
         .pipe(fs.createWriteStream(filename))
         .on('close', () => {
-          const filePath = path.join(__dirname, filename);
-          const stat = fs.statSync(filePath);
+          const filePath = path.join(filename);
+        console.log(filePath);  
+	const stat = fs.statSync(filePath);
 
           res.writeHead(200, {
             'Content-Type': 'text/csv',

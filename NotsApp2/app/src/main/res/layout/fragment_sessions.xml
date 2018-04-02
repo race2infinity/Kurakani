@@ -1,7 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/background_light"
     tools:context="com.kodery.pratz.notsapp.Sessions">
 
@@ -11,8 +12,31 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/session_recycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/button2" />
+        android:layout_marginTop="8dp"
+        android:paddingStart="4dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView_i" />
 
-</RelativeLayout>
+    <TextView
+        android:id="@+id/textView_i"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorAccent"
+        android:clickable="true"
+        android:gravity="center"
+        android:paddingBottom="4dp"
+        android:paddingStart="12dp"
+        android:paddingTop="4dp"
+        android:text="Invites"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</android.support.constraint.ConstraintLayout>
