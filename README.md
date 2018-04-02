@@ -36,12 +36,14 @@ Your admin app should now be running on [localhost:3020](http://localhost:3020/)
 ### Getting Started with the Application
 1. Create a super admin in mongo shell
 2. Login to the webportal[localhost:3020](http://localhost:3020) with the created Super Admin credentials.
-3. Create Departments and assign Admins tothese departments.
+3. Create Departments and assign Admins to these departments.
 
 ### Deploying the Android Application
-1. Install the apk from the store.
-2. Register yourself(create account) if it is your first time using the application.
-3. Login with your credentials if your accoutn already exists.
+1. Install and get started with Android Studio using https://developer.android.com/studio/index.html
+2. Open the application source code in Android Studio.
+3. Change the IP address the application will connect to, to the IP address your server will run on.
+4. Connect a phone with debugging mode enabled to your system and install the app in the phone using Android Studio.
+5. Resgister/Login to the app.
 
 
 ### How to use the application
