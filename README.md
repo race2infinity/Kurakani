@@ -51,7 +51,7 @@ Your admin app should now be running on [localhost:3020](http://localhost:3020/)
 
 ### How to use the application<a name="htuta"></a>
 1. Login with your credentials.
-2. Explore the various features of the application like sessions invites, session accpet/decline.
+2. Explore the various features of the application like sessions invites, session accept/decline.
 3. Create broadcasts, view your profile, etc.
 
 
