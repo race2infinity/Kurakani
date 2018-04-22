@@ -16,22 +16,19 @@ A Real Time Chat Application built using Node.js, Express, Mongoose, Socket.io, 
 Make sure you have [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed.
 + Install and get started with MongoDB using https://docs.mongodb.com/manual/installation/
 1. Clone or Download the repository
-
-	```
+```
 	$ git clone https://github.com/Kodery8/NotsApp.git
 	$ cd NotsApp
-  $ cd ChatApp
-	```
+	$ cd ChatApp
+```
 2. Install Dependencies
-
-	```
+```
 	$ npm install
-	```
+```
 3. Start the application
-
-  ```
-  $ npm start
-  ```
+```
+	$ npm start
+```
 Your admin app should now be running on [localhost:3020](http://localhost:3020/).
 
 
