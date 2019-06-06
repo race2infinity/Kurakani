@@ -22,9 +22,9 @@ $ sudo apt install -y mongodb
 #### Running the code
 1. Clone or Download the repository
 ```
-$ git clone https://github.com/kylelobo/NotsApp.git
-$ cd NotsApp
-$ cd ChatApp
+$ git clone https://github.com/kylelobo/Kurakani.git
+$ cd Kurakani
+$ cd Backend
 ```
 2. Install Dependencies
 ```
