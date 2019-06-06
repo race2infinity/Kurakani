@@ -22,7 +22,7 @@ $ sudo apt install -y mongodb
 #### Running the code
 1. Clone or Download the repository
 ```
-$ git clone https://github.com/Kodery8/NotsApp.git
+$ git clone https://github.com/kylelobo/NotsApp.git
 $ cd NotsApp
 $ cd ChatApp
 ```
