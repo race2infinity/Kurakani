@@ -1,5 +1,5 @@
 # Kurakani
-A Real Time Chat Application built using Node.js, Express, Mongoose, Socket.io, Passport, Crypto with an Android Interface built using Android Studio.
+A real-time chat application built for the employees of the Government of Sikkim. The app is built using Node.js, Express, Mongoose, Socket.io, Passport, Crypto with an Android Interface built using Android Studio.
 
 # Index
 + [Installation](#installation)
@@ -34,7 +34,7 @@ $ npm install
 ```
 $ npm start
 ```
-Your admin app should now be running on http://localhost:3020/.
+Your admin app should now be running on http://localhost:3020/
 
 ### Getting Started with the Application <a name="getting_started_with_the_application"></a>
 1. Create a super admin in mongo shell
