@@ -32,7 +32,7 @@
     "lodash": "^4.17.11",
     "moment": "^2.21.0",
     "mongojs": "^2.5.0",
-    "mongoose": "^5.4.5",
+    "mongoose": "^5.7.5",
     "mongoose-auto-increment": "^5.0.1",
     "mongoose-sequence": "^4.0.1",
     "mongoose-to-csv": "^0.1.1",
