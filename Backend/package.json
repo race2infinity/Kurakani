@@ -30,7 +30,7 @@
     "express-validator": "^5.0.3",
     "jquery": "^3.4.0",
     "lodash": "^4.17.11",
-    "moment": "^2.21.0",
+    "moment": "^2.29.2",
     "mongojs": "^2.5.0",
     "mongoose": "^5.4.5",
     "mongoose-auto-increment": "^5.0.1",
